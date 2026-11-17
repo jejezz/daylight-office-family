@@ -171,6 +171,11 @@ def patch_index_html(path, cfg, version, log, dry):
     if h.count(ai[0]) != 1:
         raise SystemExit(f"index.html: AI settings row anchor found {h.count(ai[0])} times (expected 1)")
     h = h.replace(*ai)
+    # recent files: no 'AI chat' entry in the row menu or as a row button (the AI functions are not available here)
+    ai = ('get when(){return ce(()=>!!e.model.islocal)()&&yo()}', 'get when(){return!1}')
+    if h.count(ai[0]) != 2:
+        raise SystemExit(f"index.html: recent-file AI chat anchor found {h.count(ai[0])} times (expected 2)")
+    h = h.replace(*ai)
     m = re.search(r'<symbol id="idx-logo"[^>]*>.*?</symbol>', h, re.S)
     if not m:
         raise SystemExit("index.html: idx-logo symbol not found")
