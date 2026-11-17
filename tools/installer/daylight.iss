@@ -54,6 +54,7 @@ Source: "NOTICE.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExe}"; Parameters: "{#LangArg}"
+Name: "{group}\{#AppName} 글꼴 설정"; Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ""{app}\set-ui-font.ps1"""; WorkingDir: "{app}"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Parameters: "{#LangArg}"; Tasks: desktopicon
 
 [Registry]

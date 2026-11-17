@@ -349,7 +349,8 @@ def main():
         print(shell_css(pal))
         return
     install_fonts(a.app)
-    shutil.copy2(os.path.join(HERE, '..', '..', 'assets', 'user', USER_CSS), os.path.join(a.app, USER_CSS))
+    for name in (USER_CSS, 'set-ui-font.ps1'):
+        shutil.copy2(os.path.join(HERE, '..', '..', 'assets', 'user', name), os.path.join(a.app, name))
     n = inject(a.app, css)
     print(f"theme: Saturn palette over {pal['dark']['theme']} / {pal['light']['theme']} "
           f"(+{nd} / +{nl} background tokens recolored from the old grays), injected into {n} editor page(s), {len(css)} bytes of CSS")
