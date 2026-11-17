@@ -46,6 +46,7 @@ ew.docx` 의 테마 글꼴(Arial)을 빌드가 `tools/ko/apply.py` 로 "맑은 �
 - 업그레이드(덮어 설치) 시 사용자 데이터 보존 시험 추가, `tests/installer.ps1` 12/12 통과.
 - (해결) 파일 형식별 아이콘: 설치 프로그램이 확장자마다 ProgID `Daylight.Document.<ext>`(docx·xlsx·pptx·odt·ods·odp·hwp·hwpx)를 등록하고 `DefaultIcon` 을 `DesktopEditors.exe,-<그룹>`(`tools/brand/filetypes.json` 의 그룹 번호; 예: docx -108)으로 둔다. `tests/installer.ps1` 16/16 통과(아이콘 항목 추가). 탐색기에서 실제로 그 아이콘이 보이는지는 연결 프로그램을 기본으로 지정해야 보이므로 눈으로는 안 봄. 서울남산체는 이미 빌드(`fonts\`)와 설치본에 포함돼 있고 라이선스 파일(`SeoulNamsan-LICENSE.txt`)이 함께 가며, 이번에 `NOTICE.txt` 4절에 출처·조건(무료 사용, 판매 금지)을 추가했다. 소스 제공 문구의 저장소 주소(`github.com/jejezz/daylight-office-family`)는 `git remote` 와 일치함을 확인(공개 저장소). 남은 것: 버전 번호 체계.
 - (결정 2026-11-18) 버전은 0.1.0 유지. 올릴 때는 `tools/installer/daylight.iss` 와 `tools/package.ps1` 의 버전을 함께 바꾼다.
+- 2026-11-18: 새 NOTICE(서울남산체 고지)를 넣어 다시 빌드·패키징. 설치 시험 16/16, 스모크 11/11 통과. `tools/package.ps1` 이 `SHA256SUMS.txt` 자신까지 해시하려다 읽기 오류를 내던 것을 고침(목록에서 제외).
 
 ## 2026-11-17 — M5 한국어 품질 (진행 중, 1차: 용어)
 - `tools/ko/terms.json` + `apply.py`(빌드 4d): 모든 편집기의 ko 번역에 용어 정리 159곳(코멘트→메모, 머리말/꼬리말→머리글/바닥글, 문단→단락, 포장→텍스트 줄 바꿈, 탭 협업→검토, 삽입 테이블→표). 근거·보류 항목은 `docs/KOREAN.md`. `--lang=ko-KR` 화면 확인(`docs/shots/m5-ko-insert.png`), smoke 통과.

@@ -16,5 +16,5 @@ if (-not $NoZip) {
   if (Test-Path $zip) { Remove-Item $zip }
   Compress-Archive -Path (Join-Path $app '*') -DestinationPath $zip -CompressionLevel Optimal
 }
-Get-ChildItem $dist -File | ForEach-Object { '{0}  {1}' -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } | Set-Content (Join-Path $dist 'SHA256SUMS.txt') -Encoding ASCII
+Get-ChildItem $dist -File | Where-Object { $_.Name -ne 'SHA256SUMS.txt' } | ForEach-Object { '{0}  {1}' -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } | Set-Content (Join-Path $dist 'SHA256SUMS.txt') -Encoding ASCII
 Get-ChildItem $dist | Select-Object Name, @{n = 'MB'; e = { [math]::Round($_.Length / 1MB, 1) } }
