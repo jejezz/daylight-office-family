@@ -152,8 +152,8 @@ def patch_index_html(path, cfg, version, log, dry):
         h = h.replace(old, new)
     # hint under the recent-files list: dropping a file anywhere on the window opens it (the empty-state box already says so)
     hint = [
-        ('dropZoneOpenAction:"Open file",', 'dropZoneOpenAction:"Open file",dropHintList:"Tip: drag a file onto this window to open it",'),
-        ('dropZoneOpenAction:"파일 열기",', 'dropZoneOpenAction:"파일 열기",dropHintList:"팁: 파일을 이 창에 끌어다 놓으면 바로 열어 줍니다",'),
+        ('dropZoneOpenAction:"Open file",', 'dropZoneOpenAction:"Open file",dropHintList:"Tip: drag a file onto this window to open it",dlFontLabel:"Interface font",dlFontDescr:"Change it from the Start menu: Daylight Office font settings. Applies after the app restarts.",'),
+        ('dropZoneOpenAction:"파일 열기",', 'dropZoneOpenAction:"파일 열기",dropHintList:"팁: 파일을 이 창에 끌어다 놓으면 바로 열어 줍니다",dlFontLabel:"인터페이스 글꼴",dlFontDescr:"시작 메뉴의 “Daylight Office 글꼴 설정”에서 바꿉니다. 앱을 다시 시작하면 적용됩니다.",'),
     ]
     for old, new in hint:
         if h.count(old) < 1:
@@ -166,8 +166,10 @@ def patch_index_html(path, cfg, version, log, dry):
         if h.count(old) != 1:
             raise SystemExit(f"index.html: drop-hint code anchor found {h.count(old)} times (expected 1)")
         h = h.replace(old, new)
-    # settings: drop the 'Enable AI features' row (the AI functions are not available here)
-    ai = ('O(c,m(j,{get when(){return B.showai===!0},', 'O(c,m(j,{get when(){return!1},')
+    # settings: the dead 'Enable AI features' row becomes an 'Interface font' info row pointing to the Start menu
+    # shortcut (set-ui-font.ps1). A daylight-font: link was tried: the app never hands custom schemes to Windows.
+    ai = ('O(c,m(j,{get when(){return B.showai===!0},get children(){var A=bC(),R=A.firstChild,V=R.firstChild;return O(R,()=>D("settingsEnableAI"),V),O(R,()=>Ue.available&&" *",V),O(V,()=>D("settingsEnableAIDescr")),O(A,m(Bi,{id:"chb-use-ai",get checked(){return B.useai!==!1},onChange:z=>de("useai",z)}),null),',
+          'O(c,m(j,{get when(){return!0},get children(){var A=bC(),R=A.firstChild,V=R.firstChild;return O(R,()=>D("dlFontLabel"),V),O(V,()=>D("dlFontDescr")),')
     if h.count(ai[0]) != 1:
         raise SystemExit(f"index.html: AI settings row anchor found {h.count(ai[0])} times (expected 1)")
     h = h.replace(*ai)
