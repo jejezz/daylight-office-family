@@ -8,7 +8,7 @@ index ffb93da..7c18fae 100644
  
 +    // [daylight] Elements hidden for everyone, independent of the license-gated `layout` config.
 +    // Edit this list to hide ribbon tabs/groups (ids are the strings passed to isElementVisible).
-+    var _daylightHidden = ['toolbar-draw'];
++    var _daylightHidden = ['toolbar-draw', 'toolbar-protect', 'toolbar-plugins'];
 +
      var _isElementVisible = function(value, config, prefix) {
 +        if (_daylightHidden.indexOf(value) !== -1) return false;

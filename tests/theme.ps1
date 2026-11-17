@@ -69,7 +69,7 @@ Check 'native window background (editors.exe theme JSON)' (Near $bm.GetPixel(700
 $bm.Dispose()
 
 # --- switch the theme through View > Interface Theme: menu = Same as system / Light / Dark
-$viewOk = Click-Tab $w.Process 543                                         # View tab (checked by its underline)
+$viewOk = Click-Tab $w.Process 460                                         # View tab (checked by its underline)
 Check 'View tab opens' $viewOk
 $switched = $false
 if ($viewOk) {

@@ -159,6 +159,10 @@ def make_css(pal, app_css_text):
         f":root .{light['theme']}{{{decls(tl)}}}",
         f":root .{dark['theme']}{{{decls(td)}}}",
     ]
+    hid = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hidden.json'), encoding='utf-8'))
+    for g in hid['groups']:
+        parts.append(f".separator:has(+ .group {g}),.group:has({g}){{display:none!important}}")
+    parts.append(','.join(hid['elements']) + '{display:none!important}')
     return '\n'.join(parts), nd, nl
 
 

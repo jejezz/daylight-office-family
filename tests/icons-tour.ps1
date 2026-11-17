@@ -11,8 +11,8 @@ $root = Split-Path $PSScriptRoot -Parent
 . (Join-Path $PSScriptRoot 'lib\ui.ps1')
 $app = Join-Path $root 'build\app'
 $tabs = @{
-  word  = @(@('Home', 98), @('Insert', 156), @('Layout', 215), @('References', 290), @('Collaboration', 383), @('Protection', 475), @('View', 543))
-  cell  = @(@('Home', 98), @('Insert', 156), @('Layout', 215), @('Formula', 281), @('Data', 343), @('Collaboration', 419), @('Protection', 511), @('View', 579))
+  word  = @(@('Home', 98), @('Insert', 156), @('Layout', 215), @('References', 290), @('Collaboration', 383), @('View', 460))
+  cell  = @(@('Home', 98), @('Insert', 156), @('Layout', 215), @('Formula', 281), @('Data', 343), @('Collaboration', 419), @('View', 511))
   slide = @(@('Home', 98), @('Insert', 156), @('Design', 216), @('Transitions', 290), @('Animation', 363), @('Collaboration', 467), @('View', 626))
 }
 $flag = @{ word = '--new:word'; cell = '--new:cell'; slide = '--new:slide' }

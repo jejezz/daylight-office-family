@@ -15,4 +15,4 @@
 | 번호 | 파일 | 목적 | 확인 |
 |---|---|---|---|
 | 0002 | `web-apps/0002-theme-choices.patch` | 인터페이스 테마 선택지를 "시스템과 같음 / 밝게 / 어둡게" 셋으로 줄임(`Themes.js` 의 나머지 정적 테마 5개 제거, `theme-white`/`theme-night` 이름을 Light/Dark 로). 색은 `tools/theme` 가 이 두 테마에 덮어쓴다 | `tests/theme.ps1`(정적 확인 + 메뉴 화면) |
-| 0001 | `web-apps/0001-layoutmanager-hidden-elements.patch` | `LayoutManager.js` 에 "누구에게나 숨길 요소" 목록(`_daylightHidden`)을 추가. 지금은 `toolbar-draw`(그리기 탭)만 숨김. M4 에서 숨길 기능을 정하면 이 목록을 채운다 | 스모크의 표식 확인 + 화면에서 "그리기" 탭 없음 |
+| 0001 | `web-apps/0001-layoutmanager-hidden-elements.patch` | `LayoutManager.js` 에 "누구에게나 숨길 요소" 목록(`_daylightHidden`)을 추가. 지금은 그리기·보호·플러그인 탭(`toolbar-draw`, `toolbar-protect`, `toolbar-plugins`)을 숨김. 더 숨길 후보는 `docs/M4-LAYOUT.md` | 스모크의 표식 확인 + 화면에서 "그리기" 탭 없음 |

@@ -1,0 +1,13 @@
+{
+ "_comment": "Ribbon groups hidden with CSS (the page's LayoutManager only knows whole tabs). Each entry is the icon selector of a button; the whole toolbar group <div class=group> holding it and the separator before it are hidden (no nested :has - Chromium rejects it). Reasons: docs/M4-LAYOUT.md.",
+ "groups": [
+  ".toolbar__icon.btn-goal-seek",
+  ".toolbar__icon.btn-edit-links",
+  ".toolbar__icon.btn-controls",
+  ".toolbar__icon.btn-macros",
+  ".toolbar__icon.btn-macros-record"
+ ],
+ "elements": [
+  ".slot-insertfield"
+ ]
+}
