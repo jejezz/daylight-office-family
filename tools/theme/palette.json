@@ -1,0 +1,47 @@
+{
+  "_comment": "Saturn palette (UX-DESIGN 4.1) written over the two built-in themes: 'theme-night' (dark) and 'theme-white' (light). The 'Same as system' mode picks one of them. Colors are hex; strokes are 'r,g,b,alpha'. Edit here and rebuild.",
+  "dark": {
+    "theme": "theme-night",
+    "canvas": "#0A0E14",
+    "surface": "#151D27",
+    "bar": "#1D2733",
+    "text": "#F1F5F9",
+    "muted": "#A9B4C4",
+    "accent": "#4C9DFF",
+    "accentText": "#0A0E14",
+    "link": "#8CC2FF",
+    "success": "#34D399",
+    "stroke": "255,255,255,0.10",
+    "strokeStrong": "255,255,255,0.20",
+    "hover": "255,255,255,0.08",
+    "press": "255,255,255,0.16",
+    "checkedMix": 0.24
+  },
+  "light": {
+    "theme": "theme-white",
+    "canvas": "#F4F6FA",
+    "surface": "#FFFFFF",
+    "bar": "#E3E8EF",
+    "text": "#101828",
+    "muted": "#5B6676",
+    "accent": "#2C6BE0",
+    "accentText": "#FFFFFF",
+    "link": "#1F55B8",
+    "success": "#1E8A57",
+    "stroke": "0,0,0,0.08",
+    "strokeStrong": "0,0,0,0.14",
+    "hover": "0,0,0,0.06",
+    "press": "0,0,0,0.12",
+    "checkedMix": 0.16
+  },
+  "common": {
+    "_comment": "Not color: UI font stack and corner radii (UX-DESIGN 4.3: buttons 8px, windows 12px). SeoulNamsan is used when installed; Hangul falls back to Malgun Gothic.",
+    "font-family-base-custom": "\"SeoulNamsan\",\"Segoe UI\",\"Malgun Gothic\",system-ui,sans-serif",
+    "border-radius-button-base": "8px",
+    "border-radius-toolbar": "10px",
+    "border-radius-window": "12px",
+    "border-radius-form-control": "6px",
+    "border-radius-checkbox": "5px",
+    "toolbar-tab-radius": "7px"
+  }
+}

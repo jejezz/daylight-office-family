@@ -63,6 +63,12 @@ if (Test-Path $ov) {
 $brand = Join-Path $PSScriptRoot 'brand\apply.ps1'
 if (Test-Path $brand) { & $brand -App $stage }
 
+# 4b. appearance: the Saturn palette written over the two built-in themes (tools\theme\palette.json)
+$py = Get-Command python -ErrorAction Stop
+$env:PYTHONIOENCODING = 'utf-8'
+& $py.Source (Join-Path $PSScriptRoot 'theme\apply.py') --app $stage
+if ($LASTEXITCODE -ne 0) { throw "theme\apply.py failed ($LASTEXITCODE)" }
+
 # 5. build record
 $lines = @("upstream_version=$Version", ("built_at=" + (Get-Date -Format 's')))
 if (Test-Path (Join-Path $root '.git')) {

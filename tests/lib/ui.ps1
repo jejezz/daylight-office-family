@@ -83,6 +83,58 @@ function Save-WindowShot($Process, [string]$Path) {
   $bmp.Save($Path)
   $g.Dispose(); $bmp.Dispose()
 }
+# SHA-256 of the top strip of the window (menu + ribbon); used to see whether a click changed the screen.
+function Get-StripHash($Process, [int]$StripHeight = 190) {
+  $r = Get-WindowRect $Process
+  $bmp = New-Object System.Drawing.Bitmap ($r.Rr - $r.L), $StripHeight
+  $g = [System.Drawing.Graphics]::FromImage($bmp)
+  $g.CopyFromScreen($r.L, $r.T, 0, 0, $bmp.Size)
+  $ms = New-Object System.IO.MemoryStream
+  $bmp.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png)
+  $h = [BitConverter]::ToString((New-Object Security.Cryptography.SHA256Managed).ComputeHash($ms.ToArray()))
+  $g.Dispose(); $bmp.Dispose(); $ms.Dispose()
+  $h
+}
+# True when the ribbon tab at window-relative x has its selection underline (a bright/accent line under the label,
+# found by contrast with the toolbar background just below it).
+function Test-TabSelected($Process, [int]$X) {
+  $r = Get-WindowRect $Process
+  $bmp = New-Object System.Drawing.Bitmap 1, 24
+  $g = [System.Drawing.Graphics]::FromImage($bmp)
+  $g.CopyFromScreen($r.L + $X, $r.T + 82, 0, 0, $bmp.Size)
+  $bg = $bmp.GetPixel(0, 22)
+  $best = 0
+  foreach ($y in 0..12) {
+    $c = $bmp.GetPixel(0, $y)
+    $d = [math]::Abs($c.R - $bg.R) + [math]::Abs($c.G - $bg.G) + [math]::Abs($c.B - $bg.B)
+    if ($d -gt $best) { $best = $d }
+  }
+  $g.Dispose(); $bmp.Dispose()
+  $best -gt 200
+}
+# Clicks a ribbon tab (window-relative x, y=76) until its underline shows. It never clicks anywhere else.
+function Click-Tab($Process, [int]$X, [int]$Tries = 4) {
+  foreach ($i in 1..$Tries) {
+    if (Test-TabSelected $Process $X) { return $true }
+    $r = Get-WindowRect $Process
+    Focus-AppWindow $Process
+    [DaylightUi]::Click($r.L + $X, $r.T + 76)
+    Start-Sleep -Seconds 2
+  }
+  return (Test-TabSelected $Process $X)
+}
+# Clicks at a window-relative position and retries (up to $Tries) until the top strip of the window changed.
+function Click-Until-Changed($Process, [int]$X, [int]$Y, [int]$Tries = 3) {
+  foreach ($i in 1..$Tries) {
+    $before = Get-StripHash $Process
+    $r = Get-WindowRect $Process
+    Focus-AppWindow $Process
+    [DaylightUi]::Click($r.L + $X, $r.T + $Y)
+    Start-Sleep -Seconds 2
+    if ((Get-StripHash $Process) -ne $before) { return $true }
+  }
+  return $false
+}
 # Waits until the top strip of the window (menu + ribbon) stops changing between two captures 1 s apart.
 # Returns the seconds waited, or $null on timeout. The strip is used because the document caret blinks.
 function Wait-WindowStable($Process, [int]$StripHeight = 190, [int]$TimeoutSec = 40) {
