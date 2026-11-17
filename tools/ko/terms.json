@@ -1,0 +1,15 @@
+{
+ "_comment": "Korean UI term fixes for the ko locale of every editor, to match the wording Korean office users know. 'replace' is applied to every string value; 'keys' sets whole strings by locale key suffix (applied to every key that ends with the given name). Reasons: docs/KOREAN.md.",
+ "replace": {
+  "코멘트": "메모",
+  "머리말": "머리글",
+  "꼬리말": "바닥글",
+  "문단": "단락",
+  "포장": "텍스트 줄 바꿈"
+ },
+ "keys": {
+  "Toolbar.textTabCollaboration": "검토",
+  "Toolbar.capBtnInsTable": "표",
+  "Toolbar.capInsertTable": "표"
+ }
+}

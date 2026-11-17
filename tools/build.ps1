@@ -73,6 +73,10 @@ if ($LASTEXITCODE -ne 0) { throw "theme\apply.py failed ($LASTEXITCODE)" }
 & $py.Source (Join-Path $PSScriptRoot 'icons\apply.py') --app $stage
 if ($LASTEXITCODE -ne 0) { throw "icons\apply.py failed ($LASTEXITCODE)" }
 
+# 4d. Korean term fixes in the ko locale (tools\ko\terms.json)
+& $py.Source (Join-Path $PSScriptRoot 'ko\apply.py') --app $stage
+if ($LASTEXITCODE -ne 0) { throw "ko\apply.py failed ($LASTEXITCODE)" }
+
 # 5. build record
 $lines = @("upstream_version=$Version", ("built_at=" + (Get-Date -Format 's')))
 if (Test-Path (Join-Path $root '.git')) {
