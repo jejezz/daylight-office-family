@@ -1,4 +1,5 @@
 {
+ "newDocFont": "맑은 고딕",
  "_comment": "Korean UI term fixes for the ko locale of every editor, to match the wording Korean office users know. 'replace' is applied to every string value; 'keys' sets whole strings by locale key suffix (applied to every key that ends with the given name). Reasons: docs/KOREAN.md.",
  "replace": {
   "코멘트": "메모",
