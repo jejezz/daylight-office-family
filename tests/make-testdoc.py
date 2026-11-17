@@ -56,3 +56,26 @@ with zipfile.ZipFile(out2, 'w', zipfile.ZIP_DEFLATED) as z:
     z.writestr('_rels/.rels', RELS)
     z.writestr('word/document.xml', DOC2)
 print('wrote', out2)
+
+
+# long.docx: ~100 pages of mixed Korean/English paragraphs plus a few tables (for tests/long-doc.ps1)
+LINES = [
+    '대한민국 헌법 제1조 대한민국은 민주공화국이다. 대한민국의 주권은 국민에게 있고, 모든 권력은 국민으로부터 나온다.',
+    'The quick brown fox jumps over the lazy dog. 0123456789 가나다라마바사아자차카타파하.',
+    '가족 모임 일정: 12월 25일 오후 3시, 장소는 할머니 댁입니다. 음식은 각자 한 가지씩 준비해 오세요.',
+]
+paras = []
+for i in range(1, 2201):
+    paras.append(para('%d. %s' % (i, LINES[i % 3])))
+    if i % 450 == 0:
+        paras.append(TBL.replace('<w:p/>', '<w:p><w:r><w:t>표 %d 칸</w:t></w:r></w:p>' % i))
+        paras.append('<w:p/>')
+DOC3 = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'
+        + ''.join(paras) + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/></w:sectPr></w:body></w:document>')
+out3 = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'long.docx')
+with zipfile.ZipFile(out3, 'w', zipfile.ZIP_DEFLATED) as z:
+    z.writestr('[Content_Types].xml', CT)
+    z.writestr('_rels/.rels', RELS)
+    z.writestr('word/document.xml', DOC3)
+print('wrote', out3)
