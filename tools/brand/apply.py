@@ -176,6 +176,13 @@ def patch_index_html(path, cfg, version, log, dry):
     if h.count(ai[0]) != 2:
         raise SystemExit(f"index.html: recent-file AI chat anchor found {h.count(ai[0])} times (expected 2)")
     h = h.replace(*ai)
+    # recent-file dates: format with the UI language (UC() holds the dictionary locale), not the browser default
+    # (which is English here, so Korean UI showed "5 seconds ago")
+    dt = ('const Qn=new Intl.RelativeTimeFormat(void 0,{numeric:"auto"}),Za=new Intl.DateTimeFormat(void 0,{year:"numeric",month:"short",day:"numeric"}),Cm=new Intl.DateTimeFormat(void 0,{hour:"2-digit",minute:"2-digit"}),',
+          'const dlLoc=()=>String(UC()).replaceAll("_","-"),Qn={format:(a,b)=>new Intl.RelativeTimeFormat(dlLoc(),{numeric:"auto"}).format(a,b)},Za={format:a=>new Intl.DateTimeFormat(dlLoc(),{year:"numeric",month:"short",day:"numeric"}).format(a)},Cm={format:a=>new Intl.DateTimeFormat(dlLoc(),{hour:"2-digit",minute:"2-digit"}).format(a)},')
+    if h.count(dt[0]) != 1:
+        raise SystemExit(f"index.html: date formatter anchor found {h.count(dt[0])} times (expected 1)")
+    h = h.replace(*dt)
     m = re.search(r'<symbol id="idx-logo"[^>]*>.*?</symbol>', h, re.S)
     if not m:
         raise SystemExit("index.html: idx-logo symbol not found")
