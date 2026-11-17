@@ -1,0 +1,17 @@
+diff --git a/editors/web-apps/apps/common/main/lib/controller/LayoutManager.js b/editors/web-apps/apps/common/main/lib/controller/LayoutManager.js
+index ffb93da..7c18fae 100644
+--- a/editors/web-apps/apps/common/main/lib/controller/LayoutManager.js
++++ b/editors/web-apps/apps/common/main/lib/controller/LayoutManager.js
+@@ -80,7 +80,12 @@ Common.UI.LayoutManager = new(function() {
+         }
+     };
+ 
++    // [daylight] Elements hidden for everyone, independent of the license-gated `layout` config.
++    // Edit this list to hide ribbon tabs/groups (ids are the strings passed to isElementVisible).
++    var _daylightHidden = ['toolbar-draw'];
++
+     var _isElementVisible = function(value, config, prefix) {
++        if (_daylightHidden.indexOf(value) !== -1) return false;
+         !config && (config = _config);
+         if (!_licensed || !config) return true;
+ 

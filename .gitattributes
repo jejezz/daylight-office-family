@@ -1,0 +1,13 @@
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.md text eol=lf
+*.json text eol=lf
+*.png binary
+*.ico binary
+*.docx binary
+# 패치는 대상 파일의 줄바꿈을 그대로 담아야 하므로 어떤 변환도 하지 않는다
+*.patch -text

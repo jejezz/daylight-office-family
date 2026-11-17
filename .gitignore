@@ -1,0 +1,14 @@
+# 업스트림(ONLYOFFICE) 소스·바이너리와 빌드 결과물은 저장소에 넣지 않는다. tools/ 로 각 PC에서 재현한다.
+external/
+build/
+dist/
+
+# Node / Python
+node_modules/
+__pycache__/
+*.pyc
+
+# 임시/로컬 파일
+*.log
+.DS_Store
+Thumbs.db
