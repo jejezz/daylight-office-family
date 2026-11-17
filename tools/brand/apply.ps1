@@ -22,6 +22,8 @@ foreach ($exe in 'editors.exe', 'DesktopEditors.exe') {
   }
   if (-not $ok) { throw "icon replacement failed for $exe" }
 }
+# app.ico in the app root is what our installer uses (setup icon, wizard); it was still the upstream logo
+Copy-Item $ico (Join-Path $App 'app.ico') -Force
 # File-type icons (the 72 other icon groups of DesktopEditors.exe): one generated icon per document type.
 $types = Join-Path $root 'build\brand\types'
 & $py.Source (Join-Path $PSScriptRoot 'make_type_icons.py') --out $types

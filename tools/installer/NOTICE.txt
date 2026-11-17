@@ -1,0 +1,21 @@
+﻿Daylight Office - NOTICE / 고지
+
+1. 이 프로그램은 무엇인가 / What this is
+Daylight Office 는 ONLYOFFICE Desktop Editors 10.0.0.169 (Ascensio System SIA) 를 수정한 가족·친지용(비상업) 배포본입니다.
+Daylight Office is a modified version of ONLYOFFICE Desktop Editors 10.0.0.169 by Ascensio System SIA, for family use (non-commercial).
+수정 내용: 이름·로고·아이콘, 색·글꼴 테마, 아이콘 세트(Phosphor Duotone 및 직접 그린 아이콘), 리본 구성(일부 기능 숨김), 한국어 용어 정리, 자동 업데이트·AI·클라우드 진입점 제거.
+이 수정본은 Ascensio System SIA 와 무관하며 보증하지 않습니다. This modified version is not endorsed by Ascensio System SIA.
+ONLYOFFICE is a trademark of Ascensio System SIA. 이 배포본은 ONLYOFFICE 상표를 사용할 권리가 없습니다.
+
+2. 라이선스 / License
+프로그램은 GNU Affero General Public License v3 (AGPLv3) 와 업스트림의 추가 조건에 따릅니다. 전문은 설치 폴더의 LICENSE.txt, 제3자 구성요소는 3DPARTYLICENSE.txt 에 있습니다.
+Original copyright notices of Ascensio System SIA are kept. 정보(About) 화면의 원 개발자 표시는 지우지 않습니다.
+이 프로그램은 어떤 보증도 없이 "있는 그대로" 제공됩니다. Provided WITHOUT ANY WARRANTY.
+
+3. 소스 코드 / Source code
+이 배포본의 대응 소스: (a) 업스트림 ONLYOFFICE Desktop Editors 10.0.0 소스 - https://github.com/ONLYOFFICE/DesktopEditors 및 같은 조직의 web-apps, sdkjs 저장소, (b) 수정 내용(패치·덮어쓰기·빌드 도구) - https://github.com/jejezz/daylight-office-family
+요청하시면 소스를 드립니다. Source is available on request via the repository above.
+
+4. 포함된 다른 구성요소 / Other components
+Phosphor Icons (Duotone) - MIT License, (c) 2020 Phosphor Icons. 전문: licenses\phosphor-LICENSE.txt
+아이콘·삽화 중 직접 그린 것: CC BY-SA 4.0.

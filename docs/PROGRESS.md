@@ -1,5 +1,17 @@
 # 진행 기록
 
+## 2026-11-17 — M6 배포 (진행 중, 1차: 설치 프로그램)
+**한 일**
+- Inno Setup 6.7.4 설치(공식 GitHub 릴리스 `jrsoftware/issrc` is-6_7_4, 10.6 MB, SHA-256 `A549929319F9120716677C685535CA4671E4B937B5FDC87E2585F32D8EB30E8C`, 서명 유효 Pyrsys B.V.). 사용자 승인 후 `external/innosetup/` 에 사용자별 설치(저장소 제외, 각 PC에서 다시 받는다).
+- `tools/installer/daylight.iss`: 사용자별 설치(관리자 권한 불필요, `{autopf}\Daylight`), 한국어/영어, 시작 메뉴·바탕화면 바로가기(`--lang=ko-KR`), 선택 작업으로 docx/xlsx/pptx/odt/ods/odp/hwp/hwpx "연결 프로그램"에 추가(기본 프로그램은 사용자가 고름, 제거 시 삭제), 라이선스(AGPL)·`NOTICE.txt`(수정 내용·상표·소스 제공·Phosphor MIT) 표시. 설정(`%LOCALAPPDATA%\Daylight`, HKCU)은 설치·업그레이드·제거가 건드리지 않음.
+- `tools/package.ps1`: 설치 파일 `dist/Daylight-Setup-<ver>.exe`(296 MB) + 휴대용 zip + SHA256SUMS. 빌드에서 업스트림 `unins000.*` 제거(`brand.json`).
+- `tests/installer.ps1`: 조용한 설치 → 파일·연결 확인 → 설치본 실행해 문서 열기 → 제거 → 정리 확인. **10/10 통과**.
+**남은 것**
+- **코드 서명 안 함(사용자 결정 2026-11-17, 인증서 비용)**. 다른 PC 에서 SmartScreen 경고·스마트 앱 컨트롤 차단 가능 → `docs/INSTALL-GUIDE.md`. 나중에 필요하면 Inno `SignTool` + 수정된 exe 재서명.
+- 업그레이드(덮어 설치) 시 사용자 데이터 보존 시험 추가, `tests/installer.ps1` 12/12 통과.
+- 파일 형식별 아이콘 연결(현재 연결 프로그램 항목은 exe 아이콘), 서울남산 글꼴 포함·라이선스, 소스 제공 문구의 저장소 주소 확인.
+- 버전 번호 체계(지금 0.1.0).
+
 ## 2026-11-17 — M5 한국어 품질 (진행 중, 1차: 용어)
 - `tools/ko/terms.json` + `apply.py`(빌드 4d): 모든 편집기의 ko 번역에 용어 정리 159곳(코멘트→메모, 머리말/꼬리말→머리글/바닥글, 문단→단락, 포장→텍스트 줄 바꿈, 탭 협업→검토, 삽입 테이블→표). 근거·보류 항목은 `docs/KOREAN.md`. `--lang=ko-KR` 화면 확인(`docs/shots/m5-ko-insert.png`), smoke 통과.
 - 한자 재변환(`tests/hanja.ps1`): 원본과 Daylight 모두 확정된 글자 선택 후 한자 키가 동작하지 않음 → 업스트림 한계, 회귀 아님(`docs/KOREAN.md`).

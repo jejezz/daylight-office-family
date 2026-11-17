@@ -8,6 +8,7 @@ built-in themes live inside the executable. So the color tokens of the two built
 loaded) app.css in document order, so it wins at equal specificity, and it also recolors the loading skeleton.
 """
 import argparse
+import shutil
 import json
 import os
 import re
@@ -165,6 +166,7 @@ def make_css(pal, app_css_text):
     for g in hid['groups']:
         parts.append(f".separator:has(+ .group {g}),.group:has({g}){{display:none!important}}")
     parts.append(','.join(hid['elements']) + '{display:none!important}')
+    parts.insert(0, font_face_css('../../common/main/resources/fonts/'))
     return '\n'.join(parts), nd, nl
 
 
@@ -216,12 +218,31 @@ def shell_tokens(p, common):
     }
 
 
+FONT_FILES = [('seoul_namsan_regular.ttf', 400), ('seoul_namsan_bold.ttf', 700), ('seoul_namsan_extra_bold.ttf', 800)]
+FONT_SRC = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'assets', 'fonts', 'seoul-namsan'))
+FONT_UI_REL = os.path.join('editors', 'web-apps', 'apps', 'common', 'main', 'resources', 'fonts')
+
+
+def font_face_css(prefix):
+    return '\n'.join(f"@font-face{{font-family:SeoulNamsan;font-weight:{w};font-style:normal;font-display:swap;src:url('{prefix}{f}') format('truetype')}}" for f, w in FONT_FILES)
+
+
+def install_fonts(app):
+    """SeoulNamsan: into the UI font folder (@font-face) and into the app's fonts folder (the document engine lists it)."""
+    for dest in (os.path.join(app, FONT_UI_REL), os.path.join(app, 'fonts')):
+        os.makedirs(dest, exist_ok=True)
+        for f, _w in FONT_FILES:
+            shutil.copy2(os.path.join(FONT_SRC, f), os.path.join(dest, f))
+    shutil.copy2(os.path.join(FONT_SRC, 'LICENSE.txt'), os.path.join(app, 'fonts', 'SeoulNamsan-LICENSE.txt'))
+
+
 def shell_css(pal):
     common = {k: v for k, v in pal.get('common', {}).items() if not k.startswith('_')}
     rules = []
     for key in ('light', 'dark'):
         p = pal[key]
         rules.append(f".{p['theme']}{{{decls(shell_tokens(p, common))}}}")
+    rules.insert(0, font_face_css(FONT_UI_REL.replace(os.sep, '/') + '/'))
     return '\n'.join(rules)
 
 
@@ -316,6 +337,7 @@ def main():
         print(css)
         print(shell_css(pal))
         return
+    install_fonts(a.app)
     n = inject(a.app, css)
     print(f"theme: Saturn palette over {pal['dark']['theme']} / {pal['light']['theme']} "
           f"(+{nd} / +{nl} background tokens recolored from the old grays), injected into {n} editor page(s), {len(css)} bytes of CSS")

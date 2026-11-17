@@ -29,8 +29,11 @@
     "editors/sdkjs-plugins/{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}",
     "editors/sdkjs-plugins/{38E022EA-AD92-45FC-B22B-49DF39746DB4}",
     "editors/sdkjs-plugins/{7327FC95-16DA-41D9-9AF2-0E7F449F6800}",
-    "editors/sdkjs-plugins/{AA2EA9B6-9EC2-415F-9762-634EE8D9A95E}"
+    "editors/sdkjs-plugins/{AA2EA9B6-9EC2-415F-9762-634EE8D9A95E}",
+    "unins000.exe",
+    "unins000.dat",
+    "unins000.msg"
   ],
-  "_removeNotes": "updatesvc.exe=update installer service; plugins removed (need the internet): AI Tools, YouTube, Translator, Plugin Manager (marketplace)",
+  "_removeNotes": "updatesvc.exe=update installer service; plugins removed (need the internet): AI Tools, YouTube, Translator, Plugin Manager (marketplace); unins000.* = upstream uninstaller (our installer brings its own)",
   "css": ".about-updates{display:none!important}"
 }

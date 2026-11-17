@@ -195,7 +195,8 @@ def main():
     for (f, kind, old, new, lo, hi) in binary_rules(cfg):
         patch_whole(bufs[f], kind, old, new, lo, hi, log, a.dry_run, label=f)
     patch_pngs(bufs['editors.exe'], offsets, a.assets, log, a.dry_run)
-    patch_qt_ico(bufs['editors.exe'], ico, log, a.dry_run)
+    qt_path = os.path.join(a.assets, 'app_qt.ico')   # slim variant when the full icon does not fit the Qt resource slot
+    patch_qt_ico(bufs['editors.exe'], open(qt_path, 'rb').read() if os.path.exists(qt_path) else ico, log, a.dry_run)
     if not a.dry_run:
         for f, b in bufs.items():
             open(os.path.join(a.app, f), 'wb').write(bytes(b))

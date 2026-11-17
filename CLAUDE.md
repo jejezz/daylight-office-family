@@ -27,6 +27,9 @@ tests\smoke.ps1                   # build\app 을 실행해 문서를 열고 창
 tests\brand.ps1                   # 아이콘·설정/데이터 위치 분리·정적 문자열 확인, 시작/정보 화면 스크린샷
 tests\icons.ps1                   # 교체된 스프라이트 칸 328개 정적 검사 + 홈 탭 아이콘을 기대 글리프와 화면 비교
 tests\theme.ps1                   # 밝게/어둡게 팔레트 색을 실제 화면 픽셀로 확인(사용자 상태를 초기화함, 영어 UI·기본 창 크기 전제)
+tools\package.ps1                 # build\app → dist\Daylight-Setup-<ver>.exe(Inno Setup, external\innosetup 필요) + 휴대용 zip
+tests\installer.ps1               # 설치 파일을 build\install-test 에 조용히 설치·실행·제거 시험
+tests\hanja.ps1                   # 한자 재변환 원본 비교(실제 키 입력, 시험 중 손대지 말 것)
 tests\network-audit.ps1           # 앱이 여는 외부 TCP 연결 관찰(-NoDoc 이면 시작 화면만)
 tests\icons-sheet.ps1             # 파일 형식 아이콘 73개를 한 장으로(눈으로 확인)
 tools\dev\set-user-defaults.ps1   # 개발 PC 용: UI 언어 등 기본값을 레지스트리에(설치 프로그램이 나중에 대신함)
