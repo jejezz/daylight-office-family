@@ -68,6 +68,12 @@ class Glyphs:
         self.cache = {}
 
     def text(self, name):
+        if name not in self.svg and name.startswith('custom:'):
+            sys.path.insert(0, os.path.join(HERE, 'custom'))
+            import icons as custom_icons  # hand-made icons, see tools/icons/custom/icons.py
+            if name[7:] not in custom_icons.ICONS:
+                raise SystemExit(f"custom icon not found: {name}")
+            self.svg[name] = custom_icons.svg(name[7:])
         if name not in self.svg:
             path = os.path.join(self.dir, name + '.svg')
             if not os.path.exists(path):

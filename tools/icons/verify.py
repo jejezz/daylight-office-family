@@ -38,6 +38,8 @@ def static_check(app, upstream):
                 continue
             cell, box = style['cell'][sheet], style['box'][sheet]
             off = (cell - box) // 2
+            if not any(('btn-' + n) in rows[sheet] for n in mapping[sheet]):
+                continue   # this editor has none of the mapped icons of this sheet (huge exists in the document editor only)
             new = np.array(Image.open(os.path.join(app, rel, 'img', 'v2', f'icons{sheet}.png')).convert('RGBA'))
             old = np.array(Image.open(os.path.join(upstream, rel, 'img', 'v2', f'icons{sheet}.png')).convert('RGBA'))
             # the 2.5x SVG sheet must still be well-formed XML and carry the new glyph in every mapped symbol
