@@ -19,7 +19,9 @@ Check 'personal settings file (daylight-user.css) installed' (Test-Path (Join-Pa
 $prog = Get-ItemProperty 'HKCU:\Software\Classes\.docx\OpenWithProgids' -ErrorAction SilentlyContinue
 $userCss = Join-Path $dir 'daylight-user.css'
 Set-Content $userCss '/* keep me */' -Encoding ASCII
-Check "'Open with' entry registered (assoc task)" ($null -ne $prog.'Daylight.Document')
+Check "'Open with' entry registered (assoc task)" ($null -ne $prog.'Daylight.Document.docx')
+$ic = (Get-ItemProperty 'HKCU:\Software\Classes\Daylight.Document.docx\DefaultIcon' -ErrorAction SilentlyContinue).'(default)'
+Check 'docx has its own file-type icon (resource -108)' ($ic -like '*DesktopEditors.exe,-108') $ic
 # upgrade over the existing install: a marker in the user data folder must survive, and the app must still start
 $dataDir = Join-Path $env:LOCALAPPDATA 'Daylight'
 $madeData = -not (Test-Path $dataDir)
@@ -43,7 +45,7 @@ Start-Sleep -Seconds 3
 Check 'uninstall exit code 0' ($u.ExitCode -eq 0) ("exit " + $u.ExitCode)
 Check 'app executable removed' (-not (Test-Path (Join-Path $dir 'DesktopEditors.exe')))
 $prog2 = Get-ItemProperty 'HKCU:\Software\Classes\.docx\OpenWithProgids' -ErrorAction SilentlyContinue
-Check "'Open with' entry removed" ($null -eq $prog2 -or $null -eq $prog2.'Daylight.Document')
+Check "'Open with' entry removed" ($null -eq $prog2 -or $null -eq $prog2.'Daylight.Document.docx')
 Check 'user data survives the uninstall' (Test-Path $marker)
 Check 'personal settings file kept after uninstall' (Test-Path $userCss)
 Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue

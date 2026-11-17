@@ -59,17 +59,38 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Parameters: "{#La
 
 [Registry]
 ; ProgID and "Open with" entries only; the default program stays the user's choice.
-Root: HKA; Subkey: "Software\Classes\Daylight.Document"; ValueType: string; ValueData: "{#AppName} document"; Flags: uninsdeletekey; Tasks: assoc
-Root: HKA; Subkey: "Software\Classes\Daylight.Document\DefaultIcon"; ValueType: string; ValueData: "{app}\{#AppExe},0"; Tasks: assoc
-Root: HKA; Subkey: "Software\Classes\Daylight.Document\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExe}"" {#LangArg} ""%1"""; Tasks: assoc
-Root: HKA; Subkey: "Software\Classes\.docx\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
-Root: HKA; Subkey: "Software\Classes\.xlsx\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
-Root: HKA; Subkey: "Software\Classes\.pptx\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
-Root: HKA; Subkey: "Software\Classes\.odt\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
-Root: HKA; Subkey: "Software\Classes\.ods\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
-Root: HKA; Subkey: "Software\Classes\.odp\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
-Root: HKA; Subkey: "Software\Classes\.hwp\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
-Root: HKA; Subkey: "Software\Classes\.hwpx\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.docx"; ValueType: string; ValueData: "{#AppName} .docx"; Flags: uninsdeletekey; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.docx\DefaultIcon"; ValueType: string; ValueData: "{app}\{#AppExe},-108"; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.docx\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExe}"" {#LangArg} ""%1"""; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\.docx\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document.docx"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.xlsx"; ValueType: string; ValueData: "{#AppName} .xlsx"; Flags: uninsdeletekey; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.xlsx\DefaultIcon"; ValueType: string; ValueData: "{app}\{#AppExe},-111"; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.xlsx\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExe}"" {#LangArg} ""%1"""; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\.xlsx\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document.xlsx"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.pptx"; ValueType: string; ValueData: "{#AppName} .pptx"; Flags: uninsdeletekey; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.pptx\DefaultIcon"; ValueType: string; ValueData: "{app}\{#AppExe},-110"; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.pptx\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExe}"" {#LangArg} ""%1"""; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\.pptx\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document.pptx"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.odt"; ValueType: string; ValueData: "{#AppName} .odt"; Flags: uninsdeletekey; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.odt\DefaultIcon"; ValueType: string; ValueData: "{app}\{#AppExe},-119"; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.odt\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExe}"" {#LangArg} ""%1"""; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\.odt\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document.odt"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.ods"; ValueType: string; ValueData: "{#AppName} .ods"; Flags: uninsdeletekey; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.ods\DefaultIcon"; ValueType: string; ValueData: "{app}\{#AppExe},-124"; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.ods\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExe}"" {#LangArg} ""%1"""; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\.ods\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document.ods"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.odp"; ValueType: string; ValueData: "{#AppName} .odp"; Flags: uninsdeletekey; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.odp\DefaultIcon"; ValueType: string; ValueData: "{app}\{#AppExe},-104"; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.odp\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExe}"" {#LangArg} ""%1"""; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\.odp\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document.odp"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.hwp"; ValueType: string; ValueData: "{#AppName} .hwp"; Flags: uninsdeletekey; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.hwp\DefaultIcon"; ValueType: string; ValueData: "{app}\{#AppExe},-164"; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.hwp\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExe}"" {#LangArg} ""%1"""; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\.hwp\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document.hwp"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.hwpx"; ValueType: string; ValueData: "{#AppName} .hwpx"; Flags: uninsdeletekey; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.hwpx\DefaultIcon"; ValueType: string; ValueData: "{app}\{#AppExe},-165"; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\Daylight.Document.hwpx\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExe}"" {#LangArg} ""%1"""; Tasks: assoc
+Root: HKA; Subkey: "Software\Classes\.hwpx\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document.hwpx"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
 
 [Run]
 Filename: "{app}\{#AppExe}"; Parameters: "{#LangArg}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent

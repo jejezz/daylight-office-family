@@ -44,7 +44,7 @@ ew.docx` 의 테마 글꼴(Arial)을 빌드가 `tools/ko/apply.py` 로 "맑은 �
 **남은 것**
 - **코드 서명 안 함(사용자 결정 2026-11-17, 인증서 비용)**. 다른 PC 에서 SmartScreen 경고·스마트 앱 컨트롤 차단 가능 → `docs/INSTALL-GUIDE.md`. 나중에 필요하면 Inno `SignTool` + 수정된 exe 재서명.
 - 업그레이드(덮어 설치) 시 사용자 데이터 보존 시험 추가, `tests/installer.ps1` 12/12 통과.
-- 파일 형식별 아이콘 연결(현재 연결 프로그램 항목은 exe 아이콘), 서울남산 글꼴 포함·라이선스, 소스 제공 문구의 저장소 주소 확인.
+- (해결) 파일 형식별 아이콘: 설치 프로그램이 확장자마다 ProgID `Daylight.Document.<ext>`(docx·xlsx·pptx·odt·ods·odp·hwp·hwpx)를 등록하고 `DefaultIcon` 을 `DesktopEditors.exe,-<그룹>`(`tools/brand/filetypes.json` 의 그룹 번호; 예: docx -108)으로 둔다. `tests/installer.ps1` 16/16 통과(아이콘 항목 추가). 탐색기에서 실제로 그 아이콘이 보이는지는 연결 프로그램을 기본으로 지정해야 보이므로 눈으로는 안 봄. 남은 것: 서울남산 글꼴 포함·라이선스, 소스 제공 문구의 저장소 주소 확인.
 - 버전 번호 체계(지금 0.1.0).
 
 ## 2026-11-17 — M5 한국어 품질 (진행 중, 1차: 용어)
