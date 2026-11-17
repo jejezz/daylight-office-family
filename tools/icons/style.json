@@ -1,0 +1,21 @@
+{
+  "_comment": "How a Phosphor glyph is placed in the sprite cells of the modern (v2) icon sheets. Each sheet row is one icon, two columns: left = dark glyph (light themes), right = light glyph (dark themes). Cell sizes in px at 100%: small 24, big 28, huge 40. 'box' is the size of Phosphor's 256 viewBox inside the cell. Glyph colors come from the theme palette (tools/theme/palette.json: text).",
+  "cell": {
+    "small": 24,
+    "big": 28,
+    "huge": 40
+  },
+  "box": {
+    "small": 20,
+    "big": 24,
+    "huge": 32
+  },
+  "editors": [
+    "documenteditor",
+    "spreadsheeteditor",
+    "presentationeditor",
+    "pdfeditor",
+    "visioeditor"
+  ],
+  "phosphorDir": "assets/phosphor-duotone"
+}

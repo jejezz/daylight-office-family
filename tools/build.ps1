@@ -69,6 +69,10 @@ $env:PYTHONIOENCODING = 'utf-8'
 & $py.Source (Join-Path $PSScriptRoot 'theme\apply.py') --app $stage
 if ($LASTEXITCODE -ne 0) { throw "theme\apply.py failed ($LASTEXITCODE)" }
 
+# 4c. icons: Phosphor Duotone painted into the modern icon sheets (tools\icons\mapping.json)
+& $py.Source (Join-Path $PSScriptRoot 'icons\apply.py') --app $stage
+if ($LASTEXITCODE -ne 0) { throw "icons\apply.py failed ($LASTEXITCODE)" }
+
 # 5. build record
 $lines = @("upstream_version=$Version", ("built_at=" + (Get-Date -Format 's')))
 if (Test-Path (Join-Path $root '.git')) {
