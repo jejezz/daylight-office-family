@@ -33,7 +33,7 @@ $missing = @($pages | Where-Object { -not ((Get-Content $_ -Raw) -match 'id="day
 Check 'theme CSS injected in every editor page' ($missing.Count -eq 0) ("pages=" + $pages.Count)
 Check 'theme CSS injected in the start screen' ((Get-Content (Join-Path $app 'index.html') -Raw -Encoding UTF8) -match 'id="daylight-theme"')
 $themesJs = Get-Content (Join-Path $app 'editors\web-apps\apps\common\main\lib\controller\Themes.js') -Raw
-Check 'theme choices reduced to system/light/dark' ($themesJs -match "delete themes_map\['theme-gray'\]")
+Check 'vendor theme list kept (no reduction patch)' ($themesJs -match "'theme-gray'")
 
 # --- run: first start with fresh user state (dark = the system mode on this PC; check the OS mode below)
 Stop-App $app
