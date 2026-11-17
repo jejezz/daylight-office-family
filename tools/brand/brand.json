@@ -35,5 +35,5 @@
     "unins000.msg"
   ],
   "_removeNotes": "updatesvc.exe=update installer service; plugins removed (need the internet): AI Tools, YouTube, Translator, Plugin Manager (marketplace); unins000.* = upstream uninstaller (our installer brings its own)",
-  "css": ".about-updates{display:none!important}"
+  "css": ".about-updates{display:none!important}.drop-hint{flex-shrink:0;margin:16px 12px 24px;padding:12px;border:1px dashed var(--border-regular-control);border-radius:8px;text-align:center;font-size:13px;line-height:18px;color:var(--text-secondary)}"
 }

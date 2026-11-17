@@ -242,6 +242,9 @@ def shell_css(pal):
     for key in ('light', 'dark'):
         p = pal[key]
         rules.append(f".{p['theme']}{{{decls(shell_tokens(p, common))}}}")
+    # the UI font is fixed: every built-in theme (classic, dark, gray, ...) sets its own --font-family-base, so pin it on all elements
+    fam = common.get('font-family-base-custom', '"Segoe UI"')
+    rules.append(f":root,:root *{{--font-family-base:{fam} !important;--font-family-base-custom:{fam} !important}}")
     rules.insert(0, font_face_css(FONT_UI_REL.replace(os.sep, '/') + '/'))
     return '\n'.join(rules)
 

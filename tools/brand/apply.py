@@ -150,6 +150,22 @@ def patch_index_html(path, cfg, version, log, dry):
         if h.count(old) != 1:
             raise SystemExit(f"index.html: rail anchor for {key!r} found {h.count(old)} times (expected 1)")
         h = h.replace(old, new)
+    # hint under the recent-files list: dropping a file anywhere on the window opens it (the empty-state box already says so)
+    hint = [
+        ('dropZoneOpenAction:"Open file",', 'dropZoneOpenAction:"Open file",dropHintList:"Tip: drag a file onto this window to open it",'),
+        ('dropZoneOpenAction:"파일 열기",', 'dropZoneOpenAction:"파일 열기",dropHintList:"팁: 파일을 이 창에 끌어다 놓으면 바로 열어 줍니다",'),
+    ]
+    for old, new in hint:
+        if h.count(old) < 1:
+            raise SystemExit(f"index.html: drop-hint dictionary anchor {old!r} not found")
+        h = h.replace(old, new)
+    for old, new in [
+        ('onAddToChat:N}),null),L})()}const by=',
+         'onAddToChat:N}),null),O(L,m(j,{get when(){return ce(()=>!!i())()&&c()},get children(){var Y=dlDropHint();return O(Y,()=>D("dropHintList")),Y}})),L})()}var dlDropHint=P("<p class=drop-hint>");const by='),
+    ]:
+        if h.count(old) != 1:
+            raise SystemExit(f"index.html: drop-hint code anchor found {h.count(old)} times (expected 1)")
+        h = h.replace(old, new)
     m = re.search(r'<symbol id="idx-logo"[^>]*>.*?</symbol>', h, re.S)
     if not m:
         raise SystemExit("index.html: idx-logo symbol not found")
