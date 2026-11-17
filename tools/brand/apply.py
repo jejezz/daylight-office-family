@@ -166,6 +166,11 @@ def patch_index_html(path, cfg, version, log, dry):
         if h.count(old) != 1:
             raise SystemExit(f"index.html: drop-hint code anchor found {h.count(old)} times (expected 1)")
         h = h.replace(old, new)
+    # settings: drop the 'Enable AI features' row (the AI functions are not available here)
+    ai = ('O(c,m(j,{get when(){return B.showai===!0},', 'O(c,m(j,{get when(){return!1},')
+    if h.count(ai[0]) != 1:
+        raise SystemExit(f"index.html: AI settings row anchor found {h.count(ai[0])} times (expected 1)")
+    h = h.replace(*ai)
     m = re.search(r'<symbol id="idx-logo"[^>]*>.*?</symbol>', h, re.S)
     if not m:
         raise SystemExit("index.html: idx-logo symbol not found")

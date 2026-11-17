@@ -6,6 +6,8 @@
 - 시작·설정 화면의 UI 폰트를 모든 테마에서 서울남산체로 고정(`tools/theme/apply.py` `shell_css`: `--font-family-base` 를 `:root *` 에 `!important`). 클래식 라이트·다크 등 내장 테마가 각자 폰트를 지정해 바뀌던 것을 막음.
 - 주의: 압축 코드에 새 변수를 넣을 때 이름이 기존 것과 겹치면 화면이 깨진다(`dh` 로 사이드바가 깨졌음 → `dlDropHint`).
 
+- 설정 화면의 "AI 기능 활성화" 줄 제거(`tools/brand/apply.py`: `B.showai===!0` 조건을 `!1` 로). AI 는 쓸 수 없으므로.
+
 ## 2026-11-17 — M6 배포 (진행 중, 1차: 설치 프로그램)
 **한 일**
 - Inno Setup 6.7.4 설치(공식 GitHub 릴리스 `jrsoftware/issrc` is-6_7_4, 10.6 MB, SHA-256 `A549929319F9120716677C685535CA4671E4B937B5FDC87E2585F32D8EB30E8C`, 서명 유효 Pyrsys B.V.). 사용자 승인 후 `external/innosetup/` 에 사용자별 설치(저장소 제외, 각 PC에서 다시 받는다).
