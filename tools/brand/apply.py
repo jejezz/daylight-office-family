@@ -171,6 +171,13 @@ def patch_index_html(path, cfg, version, log, dry):
     if h.count(ai[0]) != 1:
         raise SystemExit(f"index.html: AI settings row anchor found {h.count(ai[0])} times (expected 1)")
     h = h.replace(*ai)
+    # settings: offer only system / light / dark, like the editors (patch 0002 removed the other themes there, so choosing one changed the shell but not open documents)
+    themes = ('{value:"theme-light",label:D("settOptThemeLight")},{value:"theme-classic-light",label:D("settOptThemeClassicLight")},'
+              '{value:"theme-dark",label:D("settOptThemeDark")},{value:"theme-contrast-dark",label:D("settOptThemeContrastDark")},'
+              '{value:"theme-gray",label:D("settOptThemeGray")},')
+    if h.count(themes) != 1:
+        raise SystemExit(f"index.html: theme list anchor found {h.count(themes)} times (expected 1)")
+    h = h.replace(themes, '')
     m = re.search(r'<symbol id="idx-logo"[^>]*>.*?</symbol>', h, re.S)
     if not m:
         raise SystemExit("index.html: idx-logo symbol not found")
