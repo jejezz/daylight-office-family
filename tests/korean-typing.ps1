@@ -2,10 +2,11 @@
 # text (Ctrl+A, Ctrl+C) and compares it with what was typed. Catches dropped or garbled syllables.
 # Real keyboard input and your clipboard (restored afterwards): do not touch keyboard or mouse while this runs.
 # Usage: powershell -ExecutionPolicy Bypass -File tests\korean-typing.ps1 [-Repeat 40]
-param([int]$Repeat = 40, [int]$KeyDelayMs = 40)
+param([int]$Repeat = 40, [int]$KeyDelayMs = 40, [ValidateSet('build', 'upstream')][string]$Which = 'build')
 $root = Split-Path $PSScriptRoot -Parent
 . (Join-Path $PSScriptRoot 'lib\ui.ps1')
 $app = Join-Path $root 'build\app'
+if ($Which -eq 'upstream') { $app = (Get-ChildItem (Join-Path $root 'external') -Directory -Filter 'upstream-*' | Select-Object -First 1).FullName }
 $doc = Join-Path $PSScriptRoot 'data\hello.docx'
 $word = -join ([char[]](0xC548, 0xB155, 0xD558, 0xC138, 0xC694))   # annyeonghaseyo
 $keys = 'dkssudgktpdy'                                              # same word on a 2-beolsik keyboard
@@ -45,7 +46,7 @@ if ($ascii) {
   Write-Host 'NOTE  got Latin letters: the IME was already in Hangul mode, so the key toggled it off. Run again.'
 }
 $ok = ($count -eq $Repeat)
-$other = @($text -split '\s+' | Where-Object { $_ -ne '' -and $_ -ne $word } | Select-Object -Unique | Select-Object -First 8)
+$other = @($text -split '\s+' | Where-Object { $_ -ne '' -and $_ -ne $word } | Select-Object -Unique | Select-Object -First 30)
 $esc = $other | ForEach-Object { -join ($_.ToCharArray() | ForEach-Object { if ([int]$_ -lt 128) { [string]$_ } else { '\u{0:X4}' -f [int]$_ } }) }
 Write-Host ('other tokens: ' + ($esc -join ' | '))
 Write-Host ('{0}  typed {1} x word, found {2} in the document text (length {3})' -f $(if ($ok) { 'PASS' } else { 'FAIL' }), $Repeat, $count, $text.Length)
