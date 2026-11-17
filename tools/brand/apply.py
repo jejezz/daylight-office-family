@@ -127,11 +127,6 @@ def patch_qt_ico(buf, ico, log, dry):
     log.append(f"  Qt :/app.ico {len(z)}/{used} bytes compressed")
 
 
-# Interface font (user setting): kept in localStorage 'daylight-ui-font', applied as the CSS variable --dl-font on <html>.
-# The shell and the editor pages (file: URLs share one localStorage) read it; the CSS written by tools/theme uses var(--dl-font, <default stack>).
-DL_FONT_JS = r'''var dlStack='"SeoulNamsan","Segoe UI","Malgun Gothic",system-ui,sans-serif';function dlClean(v){return(v||"").replace(/["\;{}<>]/g,"").trim()}function dlRead(){try{return dlClean(localStorage.getItem("daylight-ui-font"))}catch(e){return""}}function dlApply(v){const r=document.documentElement.style;v?r.setProperty("--dl-font",'"'+v+'",'+dlStack):r.removeProperty("--dl-font")}var[dlFont,dlFontSet]=F(dlRead());function dlGetFont(){return dlFont()}function dlSetFont(v){dlFontSet((v||"").replace(/["\;{}<>]/g,""));v=dlClean(v);try{v?localStorage.setItem("daylight-ui-font",v):localStorage.removeItem("daylight-ui-font")}catch(e){}dlApply(v)}dlApply(dlRead());var[dlList,dlListSet]=F([]);var dlLoaded=!1;const dlCands=["Malgun Gothic","Segoe UI","Segoe UI Variable","Segoe UI Symbol","Segoe Print","Segoe Script","Arial","Arial Black","Arial Narrow","Arial Rounded MT Bold","Bahnschrift","Baskerville Old Face","Bell MT","Bodoni MT","Book Antiqua","Bookman Old Style","Calibri","Calibri Light","Cambria","Candara","Century","Century Gothic","Century Schoolbook","Comic Sans MS","Consolas","Constantia","Copperplate Gothic Light","Corbel","Courier New","Dubai","Ebrima","Franklin Gothic Medium","Gabriola","Gadugi","Garamond","Georgia","Gill Sans MT","Impact","Ink Free","Javanese Text","Leelawadee UI","Lucida Console","Lucida Sans Unicode","Microsoft JhengHei","Microsoft Sans Serif","Microsoft YaHei","MingLiU","MS Gothic","MS PGothic","MS Mincho","MV Boli","Myanmar Text","Nirmala UI","Palatino Linotype","Rockwell","Sitka Text","Sylfaen","Tahoma","Times New Roman","Trebuchet MS","Verdana","Yu Gothic","Yu Mincho","SimSun","SimHei","NSimSun","Gulim","GulimChe","Dotum","DotumChe","Batang","BatangChe","Gungsuh","GungsuhChe","Nanum Gothic","NanumGothic","Nanum Myeongjo","NanumMyeongjo","Nanum Barun Gothic","NanumBarunGothic","Nanum Square","NanumSquare","Nanum Pen Script","Nanum Gothic Coding","NanumGothicCoding","Noto Sans KR","Noto Serif KR","Noto Sans","Noto Serif","Noto Sans Mono","Pretendard","Pretendard Variable","D2Coding","Spoqa Han Sans Neo","KoPubWorld Dotum","KoPubWorld Batang","IBM Plex Sans KR","Gmarket Sans","SUIT","SUIT Variable","Paperlogy","SeoulNamsan","SeoulHangang","Source Han Sans K","Source Han Serif K","Apple SD Gothic Neo","HCR Batang","HCR Dotum","Roboto","Open Sans","Lato","Inter","Fira Sans","Fira Code","JetBrains Mono","Cascadia Code","Cascadia Mono","Hack","Ubuntu","Montserrat","Nunito","Poppins","Source Sans Pro","Source Sans 3","Source Code Pro","Helvetica","Helvetica Neue","Cooper Black","Papyrus","Tw Cen MT","Verdana Pro","Aptos","Aptos Display","Bierstadt","Grandview","Skeena","Seaford","Sagona","Tenorite","맑은 고딕","굴림","굴림체","돋움","돋움체","바탕","바탕체","궁서","궁서체","나눔고딕","나눔명조","나눔스퀘어","나눔바른고딕","나눔바른펜","나눔손글씨 펜","함초롬바탕","함초롬돋움","한컴 고딕","한컴 바탕","HY헤드라인M","HY견고딕","HY중고딕","HY신명조","HY견명조","HY울릉도M","HY강M","HY그래픽M","HY목판L","HY수평선M","HY엽서M","HY센스L","휴먼명조","휴먼고딕","휴먼둥근헤드라인","휴먼매직체","한양신명조","한양중고딕","배달의민족 주아","배달의민족 한나","배달의민족 도현","배달의민족 연성","배달의민족 기랑해랑","배달의민족 을지로체","야놀자 야체","에스코어 드림","S-Core Dream","이서윤체","서울한강체","서울남산체","제주고딕","제주명조","고운돋움","고운바탕","마루 부리","Maru Buri","KoPub돋움체","KoPub바탕체","윤고딕","윤명조","산돌고딕","Sandoll Gothic Neo","Cafe24 Ssurround","Cafe24 Ohsquare","빙그레체","Black Han Sans","Do Hyeon","Jua","Gothic A1","Gowun Dodum","Gowun Batang","Hahmlet","Nanum Brush Script","Single Day","Stylish","Sunflower","Yeon Sung","East Sea Dokdo"];function dlProbe(){const c=document.createElement("canvas").getContext("2d"),t="mmmmmmmmmmlli한글가나다 WWW",m=f=>{c.font="40px "+f;return c.measureText(t).width},a=m("monospace"),b=m("serif");return dlCands.filter(n=>{const q='"'+n+'",';return m(q+"monospace")!==a||m(q+"serif")!==b})}function dlLoad(){if(dlLoaded)return;dlLoaded=!0;dlListSet(dlProbe());if(!window.queryLocalFonts)return;const g=()=>{try{Promise.race([window.queryLocalFonts(),new Promise((r,j)=>setTimeout(j,4000))]).then(l=>{const s=[...new Set(l.map(x=>x.family))].sort((x,y)=>x.localeCompare(y));s.length>0&&dlListSet(s)}).catch(()=>{})}catch(e){}};document.addEventListener("pointerdown",g,{once:!0,capture:!0})}function dlOpts(){const l=dlList(),c=dlFont(),o=[{value:"__d",label:D("settUiFontDefault")}];c&&!l.includes(c)&&o.push({value:c,label:c});return o.concat(l.map(n=>({value:n,label:n})))}'''
-
-
 def patch_index_html(path, cfg, version, log, dry):
     h = open(path, 'rb').read().decode('utf-8')
     import re
@@ -157,8 +152,8 @@ def patch_index_html(path, cfg, version, log, dry):
         h = h.replace(old, new)
     # hint under the recent-files list: dropping a file anywhere on the window opens it (the empty-state box already says so)
     hint = [
-        ('dropZoneOpenAction:"Open file",', 'dropZoneOpenAction:"Open file",dropHintList:"Tip: drag a file onto this window to open it",settUiFont:"Interface font",settUiFontDefault:"Default (SeoulNamsan)",'),
-        ('dropZoneOpenAction:"파일 열기",', 'dropZoneOpenAction:"파일 열기",dropHintList:"팁: 파일을 이 창에 끌어다 놓으면 바로 열어 줍니다",settUiFont:"인터페이스 글꼴",settUiFontDefault:"기본 (서울남산체)",'),
+        ('dropZoneOpenAction:"Open file",', 'dropZoneOpenAction:"Open file",dropHintList:"Tip: drag a file onto this window to open it",'),
+        ('dropZoneOpenAction:"파일 열기",', 'dropZoneOpenAction:"파일 열기",dropHintList:"팁: 파일을 이 창에 끌어다 놓으면 바로 열어 줍니다",'),
     ]
     for old, new in hint:
         if h.count(old) < 1:
@@ -166,17 +161,11 @@ def patch_index_html(path, cfg, version, log, dry):
         h = h.replace(old, new)
     for old, new in [
         ('onAddToChat:N}),null),L})()}const by=',
-         'onAddToChat:N}),null),O(L,m(j,{get when(){return ce(()=>!!i())()&&c()},get children(){var Y=dlDropHint();return O(Y,()=>D("dropHintList")),Y}})),L})()}var dlDropHint=P("<p class=drop-hint>");'+DL_FONT_JS+'const by='),
+         'onAddToChat:N}),null),O(L,m(j,{get when(){return ce(()=>!!i())()&&c()},get children(){var Y=dlDropHint();return O(Y,()=>D("dropHintList")),Y}})),L})()}var dlDropHint=P("<p class=drop-hint>");const by='),
     ]:
         if h.count(old) != 1:
             raise SystemExit(f"index.html: drop-hint code anchor found {h.count(old)} times (expected 1)")
         h = h.replace(old, new)
-    # settings: an 'Interface font' text field in place of the (disabled) country row
-    country = ('get when(){return 0},get children(){var A=Ai(),R=A.firstChild,V=R.nextSibling;return O(R,()=>D("settingsCountry")),O(V,m(he,{get options(){return e()},get value(){return B.country},onChange:z=>de("country",z),disallowEmptySelection:!0,get children(){return[m(he.Trigger,{get class(){return Q.fullWidth}}),m(he.Content,{})]}}))',
-               'get when(){return!0},get children(){var A=Ai(),R=A.firstChild,V=R.nextSibling;dlLoad();return O(R,()=>D("settUiFont","Interface font")),O(V,m(he,{get options(){return dlOpts()},get value(){return dlGetFont()||"__d"},onChange:z=>dlSetFont(z==="__d"?"":z),disallowEmptySelection:!0,get children(){return[m(he.Trigger,{get class(){return Q.fullWidth}}),m(he.Content,{})]}}))')
-    if h.count(country[0]) != 1:
-        raise SystemExit(f"index.html: country row anchor found {h.count(country[0])} times (expected 1)")
-    h = h.replace(*country)
     # settings: drop the 'Enable AI features' row (the AI functions are not available here)
     ai = ('O(c,m(j,{get when(){return B.showai===!0},', 'O(c,m(j,{get when(){return!1},')
     if h.count(ai[0]) != 1:

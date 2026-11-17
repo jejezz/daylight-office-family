@@ -46,7 +46,9 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "assoc"; Description: "docx, xlsx, pptx, hwp ... 열기 프로그램에 {#AppName} 를 추가 (Windows 에서 기본 프로그램은 직접 고릅니다)"; Flags: unchecked
 
 [Files]
-Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "unins000.*"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "unins000.*,daylight-user.css"; Flags: recursesubdirs createallsubdirs ignoreversion
+; personal settings (interface font): created once, never overwritten by upgrades, kept on uninstall
+Source: "{#SourceDir}\daylight-user.css"; DestDir: "{app}"; Flags: onlyifdoesntexist uninsneveruninstall
 Source: "..\icons\LICENSE-phosphor.txt"; DestDir: "{app}\licenses"; DestName: "phosphor-LICENSE.txt"; Flags: ignoreversion
 Source: "NOTICE.txt"; DestDir: "{app}"; Flags: ignoreversion
 

@@ -21,6 +21,8 @@
 
 - 인터페이스 글꼴 목록에 한글 이름 후보(맑은 고딕·굴림·바탕·나눔·함초롬·HY·휴먼·배민체 등) 추가. 목록이 영어 이름만 검사해서 한글 이름으로만 등록된 글꼴이 안 보였다. 시스템 글꼴 전체 읽기(`queryLocalFonts`)는 첫 클릭 때 시도하도록 했으나 이 앱에서는 결과가 오지 않음(권한 거부로 추정).
 
+- **인터페이스 글꼴 = 설정 파일 방식으로 통일**: 앱 폴더의 `daylight-user.css`(템플릿 `assets/user/daylight-user.css`)를 편집기 6개 페이지와 시작 화면이 읽는다(`tools/theme/apply.py` 가 `<link>` 삽입·파일 복사). 파일에서 `--dl-font` 를 정하면 글꼴이 바뀐다(재시작 필요). 설치 프로그램은 이 파일을 처음에만 만들고 업데이트·제거 때 건드리지 않는다(`onlyifdoesntexist uninsneveruninstall`). 설정 화면의 글꼴 목록(localStorage 방식)은 편집기에 닿지 않아 **제거**(`tools/brand/apply.py` 를 되돌림). 시험: 바탕 글꼴로 편집기·시작 화면 변경 확인, `tests/installer.ps1` 15개 통과(파일 설치·업그레이드 보존·제거 후 보존). 탭 제목(Qt)은 적용 안 됨.
+
 ## 2026-11-17 — M6 배포 (진행 중, 1차: 설치 프로그램)
 **한 일**
 - Inno Setup 6.7.4 설치(공식 GitHub 릴리스 `jrsoftware/issrc` is-6_7_4, 10.6 MB, SHA-256 `A549929319F9120716677C685535CA4671E4B937B5FDC87E2585F32D8EB30E8C`, 서명 유효 Pyrsys B.V.). 사용자 승인 후 `external/innosetup/` 에 사용자별 설치(저장소 제외, 각 PC에서 다시 받는다).

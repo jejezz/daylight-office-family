@@ -18,6 +18,7 @@ import zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 APPS_REL = os.path.join('editors', 'web-apps', 'apps')
 MARK = 'id="daylight-theme"'
+USER_CSS = 'daylight-user.css'   # personal settings file next to the exe; linked after our CSS, never overwritten by the installer
 
 
 def hex_rgb(h):
@@ -186,7 +187,9 @@ def inject(app, css):
                 continue
             if t.count('</head>') != 1:
                 raise SystemExit(f"{path}: expected exactly one </head>")
-            open(path, 'w', encoding='utf-8', newline='').write(t.replace('</head>', block + '</head>'))
+            rel = os.path.relpath(os.path.join(app, USER_CSS), root).replace(os.sep, '/')
+            link = f'<link rel="stylesheet" href="{rel}">'
+            open(path, 'w', encoding='utf-8', newline='').write(t.replace('</head>', block + link + '</head>'))
             changed += 1
     if changed < 6:
         raise SystemExit(f"theme css: only {changed} editor page(s) changed (expected 6 or more); upstream changed?")
@@ -260,7 +263,8 @@ def inject_shell(app, css):
         return False
     if t.count('</head>') != 1:
         raise SystemExit("shell index.html: expected exactly one </head>")
-    open(path, 'w', encoding='utf-8', newline='').write(t.replace('</head>', f"<style {MARK}>\n{css}\n</style></head>"))
+    link = f'<link rel="stylesheet" href="{USER_CSS}">'
+    open(path, 'w', encoding='utf-8', newline='').write(t.replace('</head>', f"<style {MARK}>\n{css}\n</style>{link}</head>"))
     return True
 
 
@@ -345,6 +349,7 @@ def main():
         print(shell_css(pal))
         return
     install_fonts(a.app)
+    shutil.copy2(os.path.join(HERE, '..', '..', 'assets', 'user', USER_CSS), os.path.join(a.app, USER_CSS))
     n = inject(a.app, css)
     print(f"theme: Saturn palette over {pal['dark']['theme']} / {pal['light']['theme']} "
           f"(+{nd} / +{nl} background tokens recolored from the old grays), injected into {n} editor page(s), {len(css)} bytes of CSS")

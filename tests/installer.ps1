@@ -15,7 +15,10 @@ Check 'installer exit code 0' ($p.ExitCode -eq 0) ("exit " + $p.ExitCode)
 Check 'app files installed' (Test-Path (Join-Path $dir 'DesktopEditors.exe'))
 Check 'NOTICE and licenses installed' ((Test-Path (Join-Path $dir 'NOTICE.txt')) -and (Test-Path (Join-Path $dir 'licenses\phosphor-LICENSE.txt')) -and (Test-Path (Join-Path $dir 'LICENSE.txt')))
 Check 'uninstaller present, upstream one absent from payload' (Test-Path (Join-Path $dir 'unins000.exe'))
+Check 'personal settings file (daylight-user.css) installed' (Test-Path (Join-Path $dir 'daylight-user.css'))
 $prog = Get-ItemProperty 'HKCU:\Software\Classes\.docx\OpenWithProgids' -ErrorAction SilentlyContinue
+$userCss = Join-Path $dir 'daylight-user.css'
+Set-Content $userCss '/* keep me */' -Encoding ASCII
 Check "'Open with' entry registered (assoc task)" ($null -ne $prog.'Daylight.Document')
 # upgrade over the existing install: a marker in the user data folder must survive, and the app must still start
 $dataDir = Join-Path $env:LOCALAPPDATA 'Daylight'
@@ -26,6 +29,7 @@ Set-Content $marker 'keep me' -Encoding ASCII
 $p2 = Start-Process -FilePath $setup -ArgumentList @('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/CURRENTUSER', '/NOICONS', "/DIR=$dir", "/LOG=$log") -Wait -PassThru
 Check 'upgrade over existing install, exit code 0' ($p2.ExitCode -eq 0) ("exit " + $p2.ExitCode)
 Check 'user data survives the upgrade' (Test-Path $marker)
+Check 'personal settings file kept by the upgrade' ((Get-Content $userCss -Raw).Trim() -eq '/* keep me */')
 $userDataBefore = Test-Path (Join-Path $env:LOCALAPPDATA 'Daylight')
 Start-App $dir @('--single-window-app', ('"' + (Join-Path $root 'tests\data\hello.docx') + '"'))
 $w = Wait-AppWindow $dir '*hello*' 60
@@ -41,6 +45,8 @@ Check 'app executable removed' (-not (Test-Path (Join-Path $dir 'DesktopEditors.
 $prog2 = Get-ItemProperty 'HKCU:\Software\Classes\.docx\OpenWithProgids' -ErrorAction SilentlyContinue
 Check "'Open with' entry removed" ($null -eq $prog2 -or $null -eq $prog2.'Daylight.Document')
 Check 'user data survives the uninstall' (Test-Path $marker)
+Check 'personal settings file kept after uninstall' (Test-Path $userCss)
+Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item $marker -ErrorAction SilentlyContinue
 if ($madeData) { Remove-Item $dataDir -Recurse -Force -ErrorAction SilentlyContinue }
 $fail = @($results | Where-Object { -not $_.Ok }).Count
