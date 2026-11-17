@@ -34,7 +34,7 @@ Check 'brand name present in editors.exe' ($u16.Contains($cfg.name))
 foreach ($e in 'editors.exe', 'DesktopEditors.exe') {
   $bm = [System.Drawing.Icon]::ExtractAssociatedIcon((Join-Path $app $e)).ToBitmap()
   $c = $bm.GetPixel(16, 16); $bm.Dispose()
-  Check "file icon of $e is the new icon" (Near $c 245 184 46) ("center=({0},{1},{2})" -f $c.R, $c.G, $c.B)
+  Check "file icon of $e is the new icon" (Near $c 255 230 100) ("center=({0},{1},{2})" -f $c.R, $c.G, $c.B)
 }
 
 # --- file-type icons inside DesktopEditors.exe: sample the colored band of two of them (index 7 = docx, 10 = xlsx)
@@ -73,7 +73,7 @@ if ($w) {
   [void](Wait-WindowStable $w.Process)
   Check "title ends with '$($cfg.name)'" ($w.Process.MainWindowTitle -like ('*' + $cfg.name)) $w.Process.MainWindowTitle
   $ic = Get-WindowIconCenter $w.Process
-  Check 'window/taskbar icon is the new icon' (Near $ic 245 184 46) $(if ($ic) { "center=({0},{1},{2})" -f $ic.R, $ic.G, $ic.B } else { 'no icon' })
+  Check 'window/taskbar icon is the new icon' (Near $ic 255 230 100) $(if ($ic) { "center=({0},{1},{2})" -f $ic.R, $ic.G, $ic.B } else { 'no icon' })
   Save-WindowShot $w.Process (Join-Path $shots "brand-$stamp-editor.png")
   # start screen: first tab, then About (bottom of the left rail)
   $r = Get-WindowRect $w.Process
