@@ -35,6 +35,16 @@ function Stop-App([string]$AppDir) {
   Get-AppProcesses $AppDir | Stop-Process -Force -ErrorAction SilentlyContinue
   Start-Sleep -Milliseconds 800
 }
+# Graceful close (settings are written on a clean exit); falls back to killing after $TimeoutSec.
+function Close-App([string]$AppDir, [int]$TimeoutSec = 10) {
+  $p = Get-AppWindow $AppDir
+  if ($p) { [void]$p.CloseMainWindow() }
+  $sw = [Diagnostics.Stopwatch]::StartNew()
+  while ($sw.Elapsed.TotalSeconds -lt $TimeoutSec -and @(Get-AppProcesses $AppDir).Count -gt 0) { Start-Sleep -Milliseconds 300 }
+  $left = @(Get-AppProcesses $AppDir).Count
+  Stop-App $AppDir
+  return ($left -eq 0)
+}
 function Start-App([string]$AppDir, [string[]]$AppArgs) {
   Start-Process -FilePath (Join-Path $AppDir 'DesktopEditors.exe') -ArgumentList $AppArgs | Out-Null
 }

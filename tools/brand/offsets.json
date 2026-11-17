@@ -1,0 +1,17 @@
+{
+  "_comment": "Byte offsets of the tab-bar logo PNGs (Qt resources) inside editors.exe, per upstream version. Re-derive when upgrading: PNG blobs whose size is 85x20, 106x25, 128x30, 149x35; theme from mean brightness (255 = white text = dark theme).",
+  "10.0.0.169": {
+    "editors.exe": {
+      "logos": [
+        {"off": 883113, "w": 85,  "h": 20, "len": 499, "theme": "dark"},
+        {"off": 878451, "w": 85,  "h": 20, "len": 561, "theme": "light"},
+        {"off": 869875, "w": 106, "h": 25, "len": 651, "theme": "dark"},
+        {"off": 924314, "w": 106, "h": 25, "len": 750, "theme": "light"},
+        {"off": 896250, "w": 128, "h": 30, "len": 745, "theme": "dark"},
+        {"off": 896999, "w": 128, "h": 30, "len": 824, "theme": "light"},
+        {"off": 919292, "w": 149, "h": 35, "len": 902, "theme": "dark"},
+        {"off": 947154, "w": 149, "h": 35, "len": 987, "theme": "light"}
+      ]
+    }
+  }
+}

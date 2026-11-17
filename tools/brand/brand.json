@@ -1,0 +1,36 @@
+{
+  "_comment": "Brand settings. name = short product name (title bar suffix, settings key in HKCU\\Software\\<name>). Change here, rebuild; nothing else hard-codes it.",
+  "name": "Daylight",
+  "product": "Daylight Office",
+  "formDocument": "Daylight Form Document",
+  "dataDir": "Daylight",
+  "baseVersion": "10.0.0.169",
+  "notice": "Daylight Office 수정본 — ONLYOFFICE(Ascensio System SIA) {version} 기반, 수정일 {modified}. ONLYOFFICE is a trademark of Ascensio System SIA.",
+  "modified": "2026-11-17",
+  "htmlReplacements": [
+    [
+      "ONLYOFFICE Desktop Editors",
+      "{product}"
+    ],
+    [
+      "ONLYOFFICE 데스크톱 에디터",
+      "{product}"
+    ]
+  ],
+  "hideRail": [
+    "aichat",
+    "aitools",
+    "clouds",
+    "templates"
+  ],
+  "updateUrl": "http://127.0.0.1:9/appcast.json",
+  "removePaths": [
+    "updatesvc.exe",
+    "editors/sdkjs-plugins/{9DC93CDB-B576-4F0C-B55E-FCC9C48DD007}",
+    "editors/sdkjs-plugins/{38E022EA-AD92-45FC-B22B-49DF39746DB4}",
+    "editors/sdkjs-plugins/{7327FC95-16DA-41D9-9AF2-0E7F449F6800}",
+    "editors/sdkjs-plugins/{AA2EA9B6-9EC2-415F-9762-634EE8D9A95E}"
+  ],
+  "_removeNotes": "updatesvc.exe=update installer service; plugins removed (need the internet): AI Tools, YouTube, Translator, Plugin Manager (marketplace)",
+  "css": ".about-updates{display:none!important}"
+}

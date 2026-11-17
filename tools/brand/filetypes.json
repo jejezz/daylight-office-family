@@ -1,0 +1,437 @@
+{
+ "_comment": "Icon index -> extension/category for the file-type icons in DesktopEditors.exe (group id = 101 + index). Indexes not listed in the registration get a generic icon. Re-derive from HKLM\\SOFTWARE\\<product>\\DesktopEditors\\Capabilities\\FileAssociations when upgrading.",
+ "icons": [
+  {
+   "index": 1,
+   "group": 102,
+   "ext": "ppt",
+   "cat": "slide"
+  },
+  {
+   "index": 2,
+   "group": 103,
+   "ext": "pps",
+   "cat": "slide"
+  },
+  {
+   "index": 3,
+   "group": 104,
+   "ext": "odp",
+   "cat": "slide"
+  },
+  {
+   "index": 4,
+   "group": 105,
+   "ext": "djvu",
+   "cat": "pdf"
+  },
+  {
+   "index": 5,
+   "group": 106,
+   "ext": "pdf",
+   "cat": "pdf"
+  },
+  {
+   "index": 6,
+   "group": 107,
+   "ext": "xps",
+   "cat": "pdf"
+  },
+  {
+   "index": 7,
+   "group": 108,
+   "ext": "docx",
+   "cat": "word"
+  },
+  {
+   "index": 8,
+   "group": 109,
+   "ext": "ppsx",
+   "cat": "slide"
+  },
+  {
+   "index": 9,
+   "group": 110,
+   "ext": "pptx",
+   "cat": "slide"
+  },
+  {
+   "index": 10,
+   "group": 111,
+   "ext": "xlsx",
+   "cat": "cell"
+  },
+  {
+   "index": 11,
+   "group": 112,
+   "ext": "doc",
+   "cat": "word"
+  },
+  {
+   "index": 12,
+   "group": 113,
+   "ext": "file",
+   "cat": "other"
+  },
+  {
+   "index": 13,
+   "group": 114,
+   "ext": "file",
+   "cat": "other"
+  },
+  {
+   "index": 14,
+   "group": 115,
+   "ext": "file",
+   "cat": "other"
+  },
+  {
+   "index": 15,
+   "group": 116,
+   "ext": "file",
+   "cat": "other"
+  },
+  {
+   "index": 16,
+   "group": 117,
+   "ext": "file",
+   "cat": "other"
+  },
+  {
+   "index": 17,
+   "group": 118,
+   "ext": "file",
+   "cat": "other"
+  },
+  {
+   "index": 18,
+   "group": 119,
+   "ext": "odt",
+   "cat": "word"
+  },
+  {
+   "index": 19,
+   "group": 120,
+   "ext": "rtf",
+   "cat": "word"
+  },
+  {
+   "index": 20,
+   "group": 121,
+   "ext": "file",
+   "cat": "other"
+  },
+  {
+   "index": 21,
+   "group": 122,
+   "ext": "file",
+   "cat": "other"
+  },
+  {
+   "index": 22,
+   "group": 123,
+   "ext": "xls",
+   "cat": "cell"
+  },
+  {
+   "index": 23,
+   "group": 124,
+   "ext": "ods",
+   "cat": "cell"
+  },
+  {
+   "index": 24,
+   "group": 125,
+   "ext": "csv",
+   "cat": "cell"
+  },
+  {
+   "index": 25,
+   "group": 126,
+   "ext": "file",
+   "cat": "other"
+  },
+  {
+   "index": 26,
+   "group": 127,
+   "ext": "pot",
+   "cat": "slide"
+  },
+  {
+   "index": 27,
+   "group": 128,
+   "ext": "pptm",
+   "cat": "slide"
+  },
+  {
+   "index": 28,
+   "group": 129,
+   "ext": "epub",
+   "cat": "word"
+  },
+  {
+   "index": 29,
+   "group": 130,
+   "ext": "fb2",
+   "cat": "word"
+  },
+  {
+   "index": 30,
+   "group": 131,
+   "ext": "dotx",
+   "cat": "word"
+  },
+  {
+   "index": 31,
+   "group": 132,
+   "ext": "oxps",
+   "cat": "pdf"
+  },
+  {
+   "index": 32,
+   "group": 133,
+   "ext": "xlsb",
+   "cat": "cell"
+  },
+  {
+   "index": 33,
+   "group": 134,
+   "ext": "file",
+   "cat": "other"
+  },
+  {
+   "index": 34,
+   "group": 135,
+   "ext": "fods",
+   "cat": "cell"
+  },
+  {
+   "index": 35,
+   "group": 136,
+   "ext": "fodt",
+   "cat": "word"
+  },
+  {
+   "index": 36,
+   "group": 137,
+   "ext": "vsdx",
+   "cat": "draw"
+  },
+  {
+   "index": 37,
+   "group": 138,
+   "ext": "xlsm",
+   "cat": "cell"
+  },
+  {
+   "index": 38,
+   "group": 139,
+   "ext": "pages",
+   "cat": "word"
+  },
+  {
+   "index": 39,
+   "group": 140,
+   "ext": "numbers",
+   "cat": "cell"
+  },
+  {
+   "index": 40,
+   "group": 141,
+   "ext": "key",
+   "cat": "slide"
+  },
+  {
+   "index": 41,
+   "group": 142,
+   "ext": "md",
+   "cat": "word"
+  },
+  {
+   "index": 42,
+   "group": 143,
+   "ext": "docm",
+   "cat": "word"
+  },
+  {
+   "index": 43,
+   "group": 144,
+   "ext": "dot",
+   "cat": "word"
+  },
+  {
+   "index": 44,
+   "group": 145,
+   "ext": "dotm",
+   "cat": "word"
+  },
+  {
+   "index": 45,
+   "group": 146,
+   "ext": "fodp",
+   "cat": "slide"
+  },
+  {
+   "index": 46,
+   "group": 147,
+   "ext": "odg",
+   "cat": "slide"
+  },
+  {
+   "index": 47,
+   "group": 148,
+   "ext": "otp",
+   "cat": "slide"
+  },
+  {
+   "index": 48,
+   "group": 149,
+   "ext": "ots",
+   "cat": "cell"
+  },
+  {
+   "index": 49,
+   "group": 150,
+   "ext": "ott",
+   "cat": "word"
+  },
+  {
+   "index": 50,
+   "group": 151,
+   "ext": "potm",
+   "cat": "slide"
+  },
+  {
+   "index": 51,
+   "group": 152,
+   "ext": "potx",
+   "cat": "slide"
+  },
+  {
+   "index": 52,
+   "group": 153,
+   "ext": "ppsm",
+   "cat": "slide"
+  },
+  {
+   "index": 53,
+   "group": 154,
+   "ext": "tsv",
+   "cat": "cell"
+  },
+  {
+   "index": 54,
+   "group": 155,
+   "ext": "vsdm",
+   "cat": "draw"
+  },
+  {
+   "index": 55,
+   "group": 156,
+   "ext": "vssm",
+   "cat": "draw"
+  },
+  {
+   "index": 56,
+   "group": 157,
+   "ext": "vssx",
+   "cat": "draw"
+  },
+  {
+   "index": 57,
+   "group": 158,
+   "ext": "vstm",
+   "cat": "draw"
+  },
+  {
+   "index": 58,
+   "group": 159,
+   "ext": "vstx",
+   "cat": "draw"
+  },
+  {
+   "index": 59,
+   "group": 160,
+   "ext": "xlt",
+   "cat": "cell"
+  },
+  {
+   "index": 60,
+   "group": 161,
+   "ext": "xltm",
+   "cat": "cell"
+  },
+  {
+   "index": 61,
+   "group": 162,
+   "ext": "xltx",
+   "cat": "cell"
+  },
+  {
+   "index": 62,
+   "group": 163,
+   "ext": "file",
+   "cat": "other"
+  },
+  {
+   "index": 63,
+   "group": 164,
+   "ext": "hwp",
+   "cat": "word"
+  },
+  {
+   "index": 64,
+   "group": 165,
+   "ext": "hwpx",
+   "cat": "word"
+  },
+  {
+   "index": 65,
+   "group": 166,
+   "ext": "sxw",
+   "cat": "word"
+  },
+  {
+   "index": 66,
+   "group": 167,
+   "ext": "stw",
+   "cat": "word"
+  },
+  {
+   "index": 67,
+   "group": 168,
+   "ext": "sxc",
+   "cat": "cell"
+  },
+  {
+   "index": 68,
+   "group": 169,
+   "ext": "sxi",
+   "cat": "slide"
+  },
+  {
+   "index": 69,
+   "group": 170,
+   "ext": "wps",
+   "cat": "word"
+  },
+  {
+   "index": 70,
+   "group": 171,
+   "ext": "wpt",
+   "cat": "word"
+  },
+  {
+   "index": 71,
+   "group": 172,
+   "ext": "dps",
+   "cat": "slide"
+  },
+  {
+   "index": 72,
+   "group": 173,
+   "ext": "dpt",
+   "cat": "slide"
+  }
+ ]
+}

@@ -1,7 +1,8 @@
 param(
   [Parameter(Mandatory)] [string[]]$Exe,
-  [Parameter(Mandatory)] [string]$Ico,
-  [long]$OnlyGroup = 0
+  [string]$Ico = '',
+  [long]$OnlyGroup = 0,
+  [string]$MapFile = ''   # JSON {"<group id>": "<ico path>"}: replace many groups at once (each with its own icon)
 )
 Add-Type -TypeDefinition @'
 using System; using System.Collections.Generic; using System.IO; using System.Runtime.InteropServices;
@@ -49,7 +50,7 @@ public static class PeIcon {
       var grp = new List<byte>();
       grp.AddRange(BitConverter.GetBytes((ushort)0)); grp.AddRange(BitConverter.GetBytes((ushort)1)); grp.AddRange(BitConverter.GetBytes((ushort)cnt));
       for (int i = 0; i < cnt; i++) {
-        ushort id = (ushort)(3000 + gi * 100 + i);
+        ushort id = (ushort)(3000 + (int)g.Key * 10 + i);
         if (!UpdateResource(up, (IntPtr)3, (IntPtr)id, g.Value, imgs[i], (uint)imgs[i].Length)) log.Add("RT_ICON fail " + Marshal.GetLastWin32Error());
         grp.AddRange(dirs[i]); grp.AddRange(BitConverter.GetBytes(id));
       }
@@ -63,4 +64,14 @@ public static class PeIcon {
   }
 }
 '@
-foreach($e in $Exe){ "== $e"; [PeIcon]::Replace($e,$Ico,$OnlyGroup) | ForEach-Object { "  $_" } }
+foreach ($e in $Exe) {
+  "== $e"
+  if ($MapFile) {
+    $map = Get-Content $MapFile -Raw | ConvertFrom-Json
+    $n = 0
+    foreach ($p in $map.PSObject.Properties) { [void][PeIcon]::Replace($e, [string]$p.Value, [long]$p.Name); $n++ }
+    "  replaced $n icon groups from $MapFile"
+  } else {
+    [PeIcon]::Replace($e, $Ico, $OnlyGroup) | ForEach-Object { "  $_" }
+  }
+}

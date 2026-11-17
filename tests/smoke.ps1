@@ -1,12 +1,13 @@
 # Smoke test for build\app: launch, open a document, check window title / processes / patch markers, save a screenshot.
-# Usage: powershell -ExecutionPolicy Bypass -File tests\smoke.ps1 [-TitleSuffix ONLYOFFICE] [-MaxStartSec 45]
+# Usage: powershell -ExecutionPolicy Bypass -File tests\smoke.ps1 [-TitleSuffix <name>] [-MaxStartSec 45]
 # Exit code 0 = all checks passed, 1 = at least one failed. Screenshot: build\shots\smoke-<time>.png
 # Do not touch the app window while it runs.
 param(
-  [string]$TitleSuffix = 'ONLYOFFICE',   # M1 changes this to the product name
+  [string]$TitleSuffix = '',   # default: the product name from tools\brand\brand.json
   [int]$MaxStartSec = 45
 )
 $root = Split-Path $PSScriptRoot -Parent
+if (-not $TitleSuffix) { $TitleSuffix = (Get-Content (Join-Path $root 'tools\brand\brand.json') -Raw -Encoding UTF8 | ConvertFrom-Json).name }
 . (Join-Path $PSScriptRoot 'lib\ui.ps1')
 $app = Join-Path $root 'build\app'
 $doc = Join-Path $PSScriptRoot 'data\hello.docx'

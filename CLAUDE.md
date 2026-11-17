@@ -22,9 +22,15 @@
 ## 빌드·시험
 ```
 tools\prepare-upstream.ps1        # 한 번: 공식 설치본의 설치 폴더를 external/ 에 복사하고 해시 검증
-tools\build.ps1                   # external 의 업스트림 + patches + overlay → build\app
+tools\build.ps1                   # external 의 업스트림 + patches + overlay + 브랜드 단계 → build\app (약 30 초)
 tests\smoke.ps1                   # build\app 을 실행해 문서를 열고 창 제목·프로세스·스크린샷 확인
+tests\brand.ps1                   # 아이콘·설정/데이터 위치 분리·정적 문자열 확인, 시작/정보 화면 스크린샷
+tests\network-audit.ps1           # 앱이 여는 외부 TCP 연결 관찰(-NoDoc 이면 시작 화면만)
+tests\icons-sheet.ps1             # 파일 형식 아이콘 73개를 한 장으로(눈으로 확인)
+tools\dev\set-user-defaults.ps1   # 개발 PC 용: UI 언어 등 기본값을 레지스트리에(설치 프로그램이 나중에 대신함)
 ```
+- 이름·아이콘·정리 목록은 `tools/brand/brand.json` 과 `assets/brand/`(덮어쓸 그림) 한 곳에서 정한다. 바이너리 문자열 규칙은 일치 개수를 검사하므로 업스트림 버전을 올리면 일부러 실패한다(`offsets.json`, `filetypes.json` 도 다시 뽑는다).
+- **빌드·시험은 항상 저장소 루트에서 실행**한다. 셸의 현재 폴더가 `build\app` 안이면 교체가 막힌다. 빌드는 `build\app.new` 에서 만들어 성공 시에만 교체한다.
 
 ## 사용자 배경
 C/C++/Java 고급, Python/JavaScript 초급. 이 프로젝트의 UI 코드는 JavaScript(ONLYOFFICE web-apps), 네이티브 껍데기는 C++/Qt 다. 코드는 이유를 짧게 설명한다.
