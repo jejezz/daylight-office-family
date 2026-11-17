@@ -216,6 +216,8 @@ def fill_nonzero(polys, size, ss=4):
 
 def render_svg(svg_text, box_px, ss=4):
     """Alpha (box_px x box_px) of a Phosphor SVG; paths composited 'over' with their own opacity."""
+    if re.search(r'<(polygon|polyline|rect|circle|ellipse|line)\b', svg_text):
+        raise ValueError('this renderer only draws <path> elements; the icon uses another shape element')
     vb = re.search(r'viewBox="([^"]+)"', svg_text).group(1).split()
     vbw = float(vb[2])
     scale = box_px / vbw

@@ -1,0 +1,5 @@
+Phosphor Icons - Duotone weight (MIT, see LICENSE.txt)
+source:   https://github.com/phosphor-icons/core  tag v2.0.8  (commit d42782b2abe747d904b971ccab48b182a1455f86)
+path:     assets/duotone/<name>-duotone.svg  ->  stored here as <name>.svg
+files:    1248 (764,150 bytes), fetched 2026-11-17 with a sparse checkout (only assets/duotone and LICENSE)
+note:     the 80 files vendored earlier from the previous project were byte-identical to upstream.

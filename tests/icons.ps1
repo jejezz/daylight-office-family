@@ -36,7 +36,17 @@ foreach ($c in $cases) {
   $o = & $py $verify --shot $shot --at ("{0},151" -f $c[1]) --icon $c[2] --box 20 @darkArg 2>&1
   Check ("Home tab shows the Phosphor '" + $c[0] + "' icon") ($LASTEXITCODE -eq 0) (($o | Select-Object -Last 1) -join '')
 }
+# big icons (Insert tab, 28 px cells with a 24 px glyph)
+if (Click-Tab $w.Process 156) {
+  Start-Sleep -Seconds 1
+  $shot2 = Join-Path $root ("build\shots\icons-insert-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + ".png")
+  Save-WindowShot $w.Process $shot2
+  foreach ($c in @(@('table', 234, 'table'), @('image', 286, 'image'))) {
+    $o = & $py $verify --shot $shot2 --at ("{0},119" -f $c[1]) --icon $c[2] --box 24 2>&1
+    Check ("Insert tab shows the Phosphor '" + $c[0] + "' (big) icon") ($LASTEXITCODE -eq 0) (($o | Select-Object -Last 1) -join '')
+  }
+} else { Check 'Insert tab opens' $false }
 [void](Close-App $app)
-$fail = @($results | Where-Object { -not $_.Ok }).Count
+$fail =@($results | Where-Object { -not $_.Ok }).Count
 Write-Host ("`n{0} checks, {1} failed. Screenshot: {2}" -f $results.Count, $fail, $shot)
 exit $(if ($fail -eq 0) { 0 } else { 1 })

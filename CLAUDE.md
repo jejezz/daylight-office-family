@@ -33,7 +33,7 @@ tools\dev\set-user-defaults.ps1   # 개발 PC 용: UI 언어 등 기본값을 �
 ```
 - 이름·아이콘·정리 목록은 `tools/brand/brand.json` 과 `assets/brand/`(덮어쓸 그림) 한 곳에서 정한다. 바이너리 문자열 규칙은 일치 개수를 검사하므로 업스트림 버전을 올리면 일부러 실패한다(`offsets.json`, `filetypes.json` 도 다시 뽑는다).
 - 색·글꼴·모서리는 `tools/theme/palette.json` 한 곳(Saturn 팔레트). 기본 테마 두 개(`theme-night`/`theme-white`)에 덮어쓰며, 새 테마를 등록하지 않는다(데스크톱 앱이 설치 폴더의 테마 파일을 읽지 않기 때문). UI 시험은 View 탭 밑줄을 확인한 뒤에만 클릭한다(`Click-Tab`) — 아무 데나 클릭하면 시험 문서가 바뀐다.
-- 툴바 아이콘은 Phosphor Duotone(MIT)을 모던 테마용 스프라이트 시트에 칠해 넣는다(`tools/icons`): 대응표 `mapping.json`(ONLYOFFICE 클래스 이름→Phosphor 이름)에 넣은 것만 바뀐다. **대응표에 새로 넣을 때는 화면으로 의미를 확인**한다(같은 모양이 두 기능에 겹치거나 뜻이 다르면 뺀다 — 예: goback, function). Phosphor SVG 원본은 저장소 안 `assets/phosphor-duotone/`(MIT, 이전 프로젝트에서 복사한 80개; 2단계에서 전체로 확대).
+- 툴바 아이콘은 Phosphor Duotone(MIT)을 모던 테마용 스프라이트 시트에 칠해 넣는다(`tools/icons`): 대응표 `mapping.json`(ONLYOFFICE 클래스 이름→Phosphor 이름)에 넣은 것만 바뀐다. **대응표에 새로 넣을 때는 화면으로 의미를 확인**한다(같은 모양이 두 기능에 겹치거나 뜻이 다르면 뺀다 — 예: goback, function). Phosphor SVG 원본은 저장소 안 `assets/phosphor-duotone/`(MIT, v2.0.8 전체 1,248개, 출처는 `SOURCE.txt`). 렌더러는 `<path>` 만 그린다. 대응을 넣은 뒤 `tests/icons-tour.ps1` 로 모든 탭을 눈으로 확인한다.
 - **빌드·시험은 항상 저장소 루트에서 실행**한다. 셸의 현재 폴더가 `build\app` 안이면 교체가 막힌다. 빌드는 `build\app.new` 에서 만들어 성공 시에만 교체한다.
 
 ## 사용자 배경
