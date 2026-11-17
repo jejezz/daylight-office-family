@@ -43,5 +43,11 @@
     "border-radius-form-control": "6px",
     "border-radius-checkbox": "5px",
     "toolbar-tab-radius": "7px"
+  },
+  "sizes": {
+    "_comment": "Toolbar button sizes (px) for both themes. Upstream modern theme: button 24, gap 12, controls 84. UX-DESIGN asks 28-34.",
+    "x-small-btn-size": "28px",
+    "toolbar-small-btn-margin-top": "10px",
+    "toolbar-height-controls": "90px"
   }
 }

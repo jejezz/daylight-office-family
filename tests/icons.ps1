@@ -31,9 +31,9 @@ $darkArg = @()
 if ($osLight -eq 0) { $darkArg = @('--dark') }
 $shot = Join-Path $root ("build\shots\icons-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + ".png")
 Save-WindowShot $w.Process $shot
-$cases = @(@('bold', 135, 'text-b'), @('italic', 163, 'text-italic'), @('underline', 191, 'text-underline'), @('strikethrough', 219, 'text-strikethrough'))
+$cases = @(@('bold', 145, 'text-b'), @('italic', 177, 'text-italic'), @('underline', 209, 'text-underline'), @('strikethrough', 241, 'text-strikethrough'))
 foreach ($c in $cases) {
-  $o = & $py $verify --shot $shot --at ("{0},151" -f $c[1]) --icon $c[2] --box 20 @darkArg 2>&1
+  $o = & $py $verify --shot $shot --at ("{0},156" -f $c[1]) --icon $c[2] --box 20 @darkArg 2>&1
   Check ("Home tab shows the Phosphor '" + $c[0] + "' icon") ($LASTEXITCODE -eq 0) (($o | Select-Object -Last 1) -join '')
 }
 # big icons (Insert tab, 28 px cells with a 24 px glyph)
@@ -41,8 +41,8 @@ if (Click-Tab $w.Process 156) {
   Start-Sleep -Seconds 1
   $shot2 = Join-Path $root ("build\shots\icons-insert-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + ".png")
   Save-WindowShot $w.Process $shot2
-  foreach ($c in @(@('table', 234, 'table'), @('image', 286, 'image'))) {
-    $o = & $py $verify --shot $shot2 --at ("{0},119" -f $c[1]) --icon $c[2] --box 24 2>&1
+  foreach ($c in @(@('table', 242, 'table'), @('image', 295, 'image'))) {
+    $o = & $py $verify --shot $shot2 --at ("{0},122" -f $c[1]) --icon $c[2] --box 24 2>&1
     Check ("Insert tab shows the Phosphor '" + $c[0] + "' (big) icon") ($LASTEXITCODE -eq 0) (($o | Select-Object -Last 1) -join '')
   }
 } else { Check 'Insert tab opens' $false }
