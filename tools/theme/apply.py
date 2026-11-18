@@ -475,6 +475,14 @@ def patch_tab_styler(app):
     t, n = pat.subn('isNew = true', t)
     if n != 2:
         raise SystemExit(f"TabStyler.js: expected 2 isNew lines, found {n} (upstream changed?)")
+    # A stored or theme-default 'fill' must not win: the underline ('line') is the only style.
+    t, n1 = re.subn(r'InternalSettings\.set\("settings-tab-style", (?:value|style) \|\| \'fill\'\)',
+                    'InternalSettings.set("settings-tab-style", \'line\')', t)
+    t, n2 = re.subn(r"(Common\.localStorage\.setItem\('settings-tab-style', )style\)", r"\1'line')", t)
+    t, n3 = re.subn(r"(Common\.Utils\.InternalSettings\.set\('settings-tab-style', )style\)", r"\1'line')", t)
+    t, n4 = re.subn(r"(Common\.NotificationCenter\.trigger\('tabstyle:changed', )style\)", r"\1'line')", t)
+    if (n1, n2, n3, n4) != (2, 1, 1, 1):
+        raise SystemExit(f"TabStyler.js: force-line patterns matched {(n1, n2, n3, n4)}, expected (2,1,1,1)")
     open(path, 'w', encoding='utf-8', newline='').write(t)
 
 
