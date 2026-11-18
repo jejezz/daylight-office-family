@@ -13,3 +13,6 @@ __pycache__/
 .DS_Store
 Thumbs.db
 .~lock.*#
+
+# 업무 문서(시험용으로 루트에 둔 xls/xlsx/xlsm 등)는 저장소에 넣지 않는다
+/*.xls*

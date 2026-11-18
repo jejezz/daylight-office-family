@@ -1,5 +1,44 @@
 # 진행 기록
 
+> 다른 PC 에서 이어 할 때는 `docs/HANDOFF.md`(준비 순서, 시험 주의, 남은 확인).
+
+## 2026-11-18 — 틀 고정 저장 오류(엔진 패치 0004)와 엔진 V8 스냅숏
+**증상**: 업무 xlsm 을 고쳐 저장한 뒤 Excel 로 열면 "내용에 문제가 있습니다 … 복구된 레코드: /xl/worksheets/sheet16.xml 부분의 보기". 그 시트("자재현황")의 틀 고정이 `ySplit="-1"` 로 저장됐다(원본 `topLeftCell="A5"` + `ySplit="3"`). 같은 시트들에서 분할 값이 하나씩 어긋난 것도 있었다(예: `xSplit` 3→2).
+
+**원인**: sdkjs 가 틀 고정을 읽을 때(`asc_CPane.init`) 분할 수를 A1 기준으로 셌고, 시트 보기의 시작 칸(`sheetView topLeftCell`)을 더하는 보정은 화면에 그 시트를 띄울 때(`WorksheetView._initPane`)만 했다. 저장(`WriteSheetViewPane`)은 시작 칸을 빼므로, 열어 보지 않은 시트는 음수·어긋난 값이 된다. xlsm 만이 아니라 xlsx 도 같다. 변환기(x2t)만으로 왕복하면 정상.
+
+**한 일**
+- `patches/sdkjs/0004-frozen-pane-origin.patch`: `ReadSheetViews` 에서 시트 보기를 다 읽은 뒤 고정 칸을 "시작 칸 + 분할 수"로 다시 계산(`_initPane` 과 같은 식).
+- `tools/engine/build-sdk.ps1`: 패치가 건드리는 제품만 빌드(word/cell/slide, common 이면 전부) — 이번에 cell 엔진도 빌드·교체.
+- **중요한 발견**: `editors\sdkjs\<제품>\sdk-all.bin` 은 업스트림 엔진의 V8 스냅숏이고, 저장할 때 x2t 의 doctrenderer 가 `sdk-all.js` 대신 이것을 읽는다. 그래서 패치한 엔진이 **저장에는 반영되지 않았다**(이전 메모 "맞지 않으면 무시된다"는 틀렸다). `build-sdk.ps1` 이 다시 빌드한 제품의 `.bin` 을 지운다. 지우면 doctrenderer 가 `sdk-all.js` 를 읽고, 저장 시간 차이는 없었다(28개 시트 업무 파일 2.6 초 vs 2.8 초). → docx 저장도 이제 패치한 Word 엔진을 쓴다(회귀 확인 필요).
+- 실제 업무 파일로 다시 저장: 모든 시트에 음수 분할 없음, "자재현황" `ySplit="3"` 그대로, VBA 그대로.
+- 시험: `tests/make-xlsm.py` 에 "열어 보지 않는 시트 + 스크롤된 틀 고정" 시트를 넣고 `tests/xlsm-save.ps1` 이 분할 값을 검사. 통과 1회 확인.
+
+**사고**: 중단한 화면 시험 프로세스 두 개가 뒤에서 계속 돌며 키 입력(SendKeys)을 다른 창으로 보냈다. 대화창에 글자가 들어가고, 바탕 화면에서 `s`+Enter 로 `shutdown_…` 배치 파일이 실행됐다. 프로세스를 찾아 종료했다. 교훈과 확인 방법은 `HANDOFF.md` 3절. 화면 시험은 사람이 직접 돌리기로 했다.
+
+**남은 것**: Excel 로 다시 열어 경고가 사라졌는지, 매크로가 도는지 확인(미확인). 대조 시험(업스트림 `.bin` 으로 실패하는지) 미완. docx 저장 회귀 확인. `xlsm-save.ps1` 를 키보드·마우스 없이 바꾸기.
+
+## 2026-11-18 — .xlsm 저장
+**증상**: xlsm 을 열어 편집할 수는 있는데 Ctrl+S 를 누르면 xlsx 가 기본인 "다른 이름으로 저장"이 뜨고, 형식 목록에 XLSM 이 없었다(업스트림 그대로의 동작).
+
+**원인**(같은 태그의 공개 소스 `ONLYOFFICE/desktop-sdk`, `desktop-apps` 를 `external/` 에 받아 확인)
+- `desktop-sdk` `cefview.cpp` `LocalFile_GetSupportSaveFormats()`: 스프레드시트 저장 형식 목록에 XLSM 이 없다(pptm 은 있음). 현재 형식이 목록에 없으면 제자리 저장 대신 항상 저장 대화상자를 띄운다.
+- `desktop-apps` `cfiledialog.cpp` `m_mapFilters`(형식→대화상자 이름표)와 `GetFileFormatByExtentionForSave()`(확장자→형식)에도 XLSM 이 없다. 그래서 편집기가 XLSM 저장을 요청해도(엔진 `asc_DownloadAs`) 형식이 0 으로 넘어가 "파일을 저장하거나 만들 수 없음"으로 실패했다.
+- 변환기 x2t 와 편집 엔진은 xlsm 을 제대로 쓴다(Editor.bin → xlsm 직접 시험, 매크로 사용 콘텐츠 형식 확인).
+
+**한 일**: `tools/formats/apply.py`(빌드 4g 단계)가 두 표에서 XLTM(0x107) 자리를 XLSM(0x105)으로 바꾼다. 모든 규칙은 일치 개수를 검사하므로 업스트림을 올리면 일부러 실패한다.
+- `ascdocumentscore.dll`: 저장 형식 목록의 `push_back(XLTM)` 인라인 코드(즉값 두 개).
+- `editors.exe`: `m_mapFilters[XLTM]` 의 키 즉값, `" (*.xltm)"` → `" (*.xlsm)"`, 이름표 번역(ko 비압축 .qm 1곳 "매크로 지원 스프레드시트", en 이름표가 든 압축 .qm 5곳 "Macro-enabled Spreadsheet"; .qm 레코드 길이를 지키려고 짧아진 만큼 폭 없는 공백 U+200B 로 채움).
+- 결과: xlsm 은 Ctrl+S 로 제자리 저장, 다른 이름으로 저장의 기본 형식도 xlsm. 대신 **xltm(매크로 사용 템플릿)으로는 저장할 수 없다**(열기는 됨).
+- 시험 `tests/xlsm-save.ps1`(+ `tests/make-xlsm.py`): 바이트 정적 확인, Ctrl+S 덮어쓰기, 다른 이름으로 저장(XLSM) → 10개 항목 통과. `smoke.ps1` 11개 통과. 영어 UI 에서 대화상자 이름표를 눈으로 확인.
+
+**실제 문서 시험**(VBA 가 든 업무용 xlsm, 28개 시트, 936 KB — 사본으로, 원본은 저장소에 넣지 않음): 빈 셀 Z1000 에 입력 → Ctrl+S 로 제자리 저장.
+- `xl/vbaProject.bin` **바이트 그대로 유지**(SHA-256 같음), 콘텐츠 형식·통합 문서 관계·`codeName` 유지. 시트 28개 이름 그대로, 메모·스레드 메모·표·양식 컨트롤 개수 그대로.
+- 빠진 것(xlsm 만의 문제가 아니라 ONLYOFFICE 저장 일반): `calcChain.xml`(Excel 이 다시 만듦), 프린터 설정 9개(`printerSettings*.bin`, 인쇄 드라이버 설정), `featurePropertyBag.xml`(Excel 의 셀 안 체크박스 기능 정보 — 그 기능을 쓰는 셀이 있으면 Excel 에서 체크박스가 일반 값으로 보일 수 있음, 미확인).
+- Excel 에서 저장된 파일을 열어 매크로가 실제로 도는지는 미확인.
+
+**남은 것**: 한국어 UI 의 이름표는 화면으로 미확인. docm 도 같은 구조로 빠져 있으나 손대지 않음.
+
 ## 2026-11-17 — 시작 화면 끌어다 놓기 안내
 - 최근 파일 목록이 있을 때 화면 맨 아래에 "팁: 파일을 이 창에 끌어다 놓으면 바로 열어 줍니다" 점선 안내를 추가(목록이 비면 기존 "아직 파일이 없습니다" 상자). `tools/brand/apply.py` 의 `patch_index_html` 이 압축 코드 한 곳과 사전 키(`dropHintList`, 영어·한국어)를 고치고, 스타일은 `brand.json` 의 `css`. 화면으로 확인함(영어 UI).
 

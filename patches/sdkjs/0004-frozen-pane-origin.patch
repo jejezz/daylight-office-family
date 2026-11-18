@@ -1,0 +1,20 @@
+diff --git a/cell/model/Serialize.js b/cell/model/Serialize.js
+index 572598b..8590620 100644
+--- a/cell/model/Serialize.js
++++ b/cell/model/Serialize.js
+@@ -13133,6 +13133,15 @@
+                 res = this.bcr.Read1(length, function (t, l) {
+                     return oThis.ReadSheetView(t, l, oSheetView);
+                 });
++                // Daylight: xSplit/ySplit count from the sheet view's top-left cell (Excel). asc_CPane.init() counted
++                // from A1, and only WorksheetView._initPane fixed it - for sheets that were shown. A sheet never shown
++                // then saved a negative split (WriteSheetViewPane subtracts the origin) and Excel had to repair the file.
++                var oPane = oSheetView.pane;
++                if (oPane && oPane.isInit() && oSheetView.topLeftCell) {
++                    var nOriginCol = oSheetView.topLeftCell.c1, nOriginRow = oSheetView.topLeftCell.r1;
++                    oPane.topLeftFrozenCell = new AscCommon.CellAddress(oPane.ySplit > 0 ? nOriginRow + oPane.ySplit : 0,
++                        oPane.xSplit > 0 ? nOriginCol + oPane.xSplit : 0, 0);
++                }
+                 aSheetViews.push(oSheetView);
+             }
+             else

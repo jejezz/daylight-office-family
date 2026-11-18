@@ -96,6 +96,10 @@ Write-Host "standalone editors.exe: $($rootDlls.Count) converter DLLs copied to 
 # 4f. editing engine: sdkjs built from source with patches\sdkjs (skipped when there is no engine patch)
 $engineInfo = & (Join-Path $PSScriptRoot 'engine\build-sdk.ps1') -Stage $stage -Root $root -ForceEngine:$ForceEngine
 
+# 4g. file formats: save .xlsm in place and offer it in Save As (native format tables, tools\formats\apply.py)
+& $py.Source (Join-Path $PSScriptRoot 'formats\apply.py') --app $stage
+if ($LASTEXITCODE -ne 0) { throw "formats\apply.py failed ($LASTEXITCODE)" }
+
 # 5. build record
 $lines = @("upstream_version=$Version", ("built_at=" + (Get-Date -Format 's')))
 if (Test-Path (Join-Path $root '.git')) {
