@@ -1,5 +1,6 @@
 
 # 빌드 및 패키징
+.\tools\bootstrap.ps1 -WithInstaller   # clone 직후 한 번 (설치 파일을 안 만들면 -WithInstaller 생략)
 .\tools\build.ps1
 .\tools\package.ps1 -Version 0.1.1
 
