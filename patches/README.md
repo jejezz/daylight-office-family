@@ -18,6 +18,6 @@
 
 ## 엔진(sdkjs) 패치: `patches/sdkjs/`
 - 설치 트리가 아니라 **엔진 소스**(`external/sdkjs`, 태그 v10.0.0.169)에 적용한다. 경로는 sdkjs 루트 기준(예: `word/Drawing/DrawingDocument.js`), `git apply -p1`.
-- `tools/build.ps1` 의 위 목록 단계는 이 폴더를 건너뛰고, 4f 단계(`tools/engine/build-sdk.ps1`)가 적용·빌드한 뒤 `editors/sdkjs/word/` 의 `sdk-all-min.js` 와 `sdk-all.js` 를 **함께** 교체한다. 패치가 하나도 없으면 엔진은 그대로(원본). 패치 없이 소스 빌드만 시험하려면 `toolsuild.ps1 -ForceEngine`.
+- `tools/build.ps1` 의 위 목록 단계는 이 폴더를 건너뛰고, 4f 단계(`tools/engine/build-sdk.ps1`)가 적용·빌드한 뒤 `editors/sdkjs/word/` 의 `sdk-all-min.js` 와 `sdk-all.js` 를 **함께** 교체한다. 패치가 하나도 없으면 엔진은 그대로(원본). 패치 없이 소스 빌드만 시험하려면 `tools\build.ps1 -ForceEngine`.
 - 확인: `tests\engine.ps1 [-ExpectEngine]` (화면 픽셀로 본문 글자·눈금자가 그려졌는지). 기능 패치마다 시험을 추가한다. 계획은 `docs/ENGINE-PLAN.md`.
 
