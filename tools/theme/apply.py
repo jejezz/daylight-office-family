@@ -441,6 +441,7 @@ def patch_rail_icons(app):
     path = os.path.join(app, 'index.html')
     t = open(path, encoding='utf-8', errors='ignore', newline='').read()
     n = 0
+    css = []
     for sid in ('home', 'folder', 'settings', 'about'):
         b64 = base64.b64encode(open(os.path.join(d, sid + '.png'), 'rb').read()).decode('ascii')
         new = f'<symbol id="{sid}" viewBox="0 0 100 100"><image width="100" height="100" href="data:image/png;base64,{b64}"/></symbol>'
@@ -448,7 +449,15 @@ def patch_rail_icons(app):
         if len(pat.findall(t)) != 1:
             raise SystemExit(f"index.html: expected one <symbol id=\"{sid}\">, found {len(pat.findall(t))} (upstream changed?)")
         t = pat.sub(lambda m: new, t, count=1)
+        # This start screen draws the rail with <i class="icon tool-icon home"> and a CSS sprite sheet
+        # (.tool-icon.home{background-position-y:..}), not with <use href="#home">, so the symbols above are not what
+        # shows. Override the sprite for the four rail buttons (more specific than the sprite and dark-theme rules).
+        css.append(f'.tool-menu i.icon.tool-icon.{sid}{{background-image:url(data:image/png;base64,{b64})!important;'
+                   f'background-size:contain!important;background-position:center!important;background-repeat:no-repeat!important}}')
         n += 1
+    if t.count('</head>') != 1:
+        raise SystemExit("index.html: expected exactly one </head>")
+    t = t.replace('</head>', '<style id="daylight-rail-icons">\n' + '\n'.join(css) + '\n</style></head>')
     open(path, 'w', encoding='utf-8', newline='').write(t)
     return n
 
