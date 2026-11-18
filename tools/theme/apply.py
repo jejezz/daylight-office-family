@@ -40,18 +40,31 @@ def rgba(spec, alpha=None):
     return f"rgba({r}, {g}, {b}, {alpha if alpha is not None else a})"
 
 
+def header_colors(p):
+    """Title-row color per editor type (Word blue, Excel green, PowerPoint orange, PDF red, like the MS Office
+    signature colors) and the text/icon color on top of it; without a 'header' block the title row uses the bar color."""
+    if 'header' not in p:
+        return {k: p['bar'] for k in ('document', 'spreadsheet', 'presentation', 'pdf', 'visio')}, p['text']
+    return dict(p['header']), p.get('headerText', '#FFFFFF')
+
+
 def tokens(p):
-    hdr = p['bar']
+    H, HT = header_colors(p)
+    HOV, PRS = ('rgba(255,255,255,0.14)', 'rgba(255,255,255,0.26)') if 'header' in p else (rgba(p['hover']), rgba(p['press']))
     checked = mix(p['surface'], p['accent'], p['checkedMix'])
     checked_hover = mix(p['surface'], p['accent'], min(1.0, p['checkedMix'] + 0.10))
     t = {
         # title strip inside the editor window (the native tab row keeps the native dark/light look)
-        'toolbar-header-document': hdr, 'toolbar-header-spreadsheet': hdr, 'toolbar-header-presentation': hdr,
-        'toolbar-header-pdf': hdr, 'toolbar-header-visio': hdr,
-        'text-toolbar-header-on-background-document': p['text'], 'text-toolbar-header-on-background-spreadsheet': p['text'],
-        'text-toolbar-header-on-background-presentation': p['text'], 'text-toolbar-header-on-background-pdf': p['text'],
-        'text-toolbar-header-on-background-visio': p['text'],
-        'text-toolbar-header': p['text'], 'icon-toolbar-header': p['text'],
+        'toolbar-header-document': H['document'], 'toolbar-header-spreadsheet': H['spreadsheet'],
+        'toolbar-header-presentation': H['presentation'], 'toolbar-header-pdf': H['pdf'], 'toolbar-header-visio': H['visio'],
+        'text-toolbar-header-on-background-document': HT, 'text-toolbar-header-on-background-spreadsheet': HT,
+        'text-toolbar-header-on-background-presentation': HT, 'text-toolbar-header-on-background-pdf': HT,
+        'text-toolbar-header-on-background-visio': HT,
+        'text-toolbar-header': HT, 'icon-toolbar-header': HT,
+        # selected-tab underline in the title/menu rows: visible on every editor color
+        'highlight-header-tab-underline-document': HT, 'highlight-header-tab-underline-spreadsheet': HT,
+        'highlight-header-tab-underline-presentation': HT, 'highlight-header-tab-underline-pdf': HT,
+        'highlight-header-tab-underline-visio': HT,
         # surfaces
         'background-normal': p['surface'], 'background-toolbar': p['surface'], 'background-toolbar-additional': p['bar'],
         'background-contrast-popover': p['bar'], 'background-notification-popover': p['bar'],
@@ -59,7 +72,7 @@ def tokens(p):
         # states
         'highlight-button-hover': rgba(p['hover']), 'highlight-button-pressed': checked,
         'highlight-button-pressed-hover': checked_hover,
-        'highlight-header-button-hover': rgba(p['hover']), 'highlight-header-button-pressed': rgba(p['press']),
+        'highlight-header-button-hover': HOV, 'highlight-header-button-pressed': PRS,
         'highlight-primary-dialog-button-hover': mix(p['accent'], p['text'], 0.18),
         # borders
         'border-toolbar': rgba(p['stroke']), 'border-toolbar-active-panel-top': rgba(p['stroke']),
@@ -120,12 +133,12 @@ def extra_tokens(p, app_css_text, explicit):
 
 def skeleton(p):
     """Colors of the loading skeleton (shown while a document opens), same palette."""
-    hdr = p['bar']
+    H, _ = header_colors(p)
     return {
         'sk-background-toolbar': p['surface'], 'sk-background-toolbar-controls': p['surface'],
-        'sk-background-toolbar-header-word': hdr, 'sk-background-toolbar-header-pdf': hdr,
-        'sk-background-toolbar-header-slide': hdr, 'sk-background-toolbar-header-cell': hdr,
-        'sk-background-toolbar-header-visio': hdr,
+        'sk-background-toolbar-header-word': H['document'], 'sk-background-toolbar-header-pdf': H['pdf'],
+        'sk-background-toolbar-header-slide': H['presentation'], 'sk-background-toolbar-header-cell': H['spreadsheet'],
+        'sk-background-toolbar-header-visio': H['visio'],
         'sk-background-toolbar-tab': rgba(p['strokeStrong']), 'sk-background-toolbar-button': p['bar'],
         'sk-canvas-background': p['canvas'], 'sk-canvas-page-border': rgba(p['stroke']),
         'sk-shadow-toolbar': 'inset 0 -1px ' + rgba(p['stroke']),
@@ -163,6 +176,18 @@ def make_css(pal, app_css_text):
     ]
     sizes = {k: v for k, v in pal.get('sizes', {}).items() if not k.startswith('_')}
     parts.append(f":root .{light['theme']},:root .{dark['theme']}{{{decls(sizes)}}}")
+    # Icon sheets are rebuilt larger by tools/icons (style.json scaleUp); the icon elements are zoomed by the same
+    # ratio so sheet pixels map 1:1 to screen pixels (no stretching). Vector (svg) icons just scale.
+    st = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'icons', 'style.json'), encoding='utf-8'))
+    zs, zb, zh = (st['scaleUp'][n] / st['cell'][n] for n in ('small', 'big', 'huge'))
+    parts.append(f".toolbar__icon:not(.toolbar__icon-big),.menu__icon,.btn-toolbar:not(.x-huge) .icon:not(.toolbar__icon){{zoom:{zs:.5f}}}")
+    parts.append(f".toolbar__icon.toolbar__icon-big,.x-huge .toolbar__icon,.btn-group.icon-top.x-huge .icon:not(svg),.btn.icon-top.x-huge .icon:not(svg),.btn-group.icon-top.x-huge svg.icon,.btn.icon-top.x-huge svg.icon{{zoom:{zb:.5f}}}")
+    parts.append(f".options__icon-huge{{zoom:{zh:.5f}}}")
+    if 'header' in light:
+        # the colored title row needs the light glyph column of the header icon sheets (the light theme uses the dark one)
+        parts.append(f":root .{light['theme']}{{--button-header-normal-icon-offset-x:-24px !important;--button-header-active-icon-offset-x:-24px !important}}")
+    th = int(pal['layout']['document-title-height'])
+    parts.append(f".top-title .cousers-menu{{top:calc({th}px + 28px - 8px) !important}}")
     hid = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hidden.json'), encoding='utf-8'))
     for g in hid['groups']:
         parts.append(f".separator:has(+ .group {g}),.group:has({g}){{display:none!important}}")
@@ -334,6 +359,33 @@ def patch_native_themes(app, pal):
     return done
 
 
+def scale_font_sizes(app, factor):
+    """Raise every hard-coded `font-size: Npx` in the editors' app.css by `factor` (menus, dialogs, panels, combo
+    boxes, status bar...). Sizes that come from --font-size-base are already raised by palette.json 'sizes'."""
+    changed = 0
+    pat = re.compile(r'(font-size:\s*)(\d+)px')
+    for ed in ('documenteditor', 'spreadsheeteditor', 'presentationeditor', 'pdfeditor', 'visioeditor'):
+        path = os.path.join(app, APPS_REL, ed, 'main', 'resources', 'css', 'app.css')
+        if not os.path.isfile(path):
+            continue
+        t = open(path, encoding='utf-8', errors='ignore', newline='').read()
+        t, n = pat.subn(lambda m: m.group(1) + str(int(int(m.group(2)) * factor + 0.5)) + 'px', t)
+        open(path, 'w', encoding='utf-8', newline='').write(t)
+        changed += n
+    return changed
+
+
+def patch_layout_js(app, layout):
+    """Set the title-row height the editors hard-code in JavaScript (exactly one match, or the build fails)."""
+    path = os.path.join(app, APPS_REL, 'common', 'main', 'lib', 'util', 'utils.js')
+    t = open(path, encoding='utf-8', errors='ignore', newline='').read()
+    old = "Common.Utils.InternalSettings.set('document-title-height', 28);"
+    if t.count(old) != 1:
+        raise SystemExit(f"utils.js: expected one document-title-height line, found {t.count(old)} (upstream changed?)")
+    t = t.replace(old, f"Common.Utils.InternalSettings.set('document-title-height', {int(layout['document-title-height'])});")
+    open(path, 'w', encoding='utf-8', newline='').write(t)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--app', required=True)
@@ -348,6 +400,9 @@ def main():
         print(css)
         print(shell_css(pal))
         return
+    nf = scale_font_sizes(a.app, float(pal['sizes']['font-size-base'].rstrip('px')) / 12.0)
+    print(f"theme: {nf} hard-coded font sizes in app.css scaled x{float(pal['sizes']['font-size-base'].rstrip('px')) / 12.0:.3f}")
+    patch_layout_js(a.app, pal['layout'])
     install_fonts(a.app)
     for name in (USER_CSS, 'set-ui-font.ps1'):
         shutil.copy2(os.path.join(HERE, '..', '..', 'assets', 'user', name), os.path.join(a.app, name))

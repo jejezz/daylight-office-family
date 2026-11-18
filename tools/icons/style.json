@@ -5,6 +5,12 @@
     "big": 28,
     "huge": 40
   },
+  "scaleUp": {
+    "_comment": "Target cell size (px at 100%) after the interface was made ~15% larger (decided 2026-11-18). The sheets are rebuilt at this size (from the 200% sheets, glyphs re-rendered) and the theme zooms the icon elements by target/cell, so the pixels match 1:1 and nothing is stretched.",
+    "small": 28,
+    "big": 32,
+    "huge": 46
+  },
   "box": {
     "small": 20,
     "big": 24,

@@ -160,36 +160,44 @@ def main():
         rows = css_rows(css)
         for sheet in ('small', 'big', 'huge'):
             cell, box = style['cell'][sheet], style['box'][sheet]
+            target = style['scaleUp'][sheet]          # cell size at 100% after scaling up
+            k = target / cell
             todo = {}
             for name, ph in mapping.get(sheet, {}).items():
                 cls = 'btn-' + name
                 if cls in rows[sheet]:
-                    todo[cls] = (ph, box, rows[sheet][cls])
+                    todo[cls] = (ph, rows[sheet][cls])
                 else:
                     missing.append(f"{ed}/{sheet}/{cls}")
-            if not todo:
-                continue
             sheet_dir = os.path.join(base, 'img', 'v2')
+            src_path = os.path.join(sheet_dir, f'icons{sheet}@2x.png')
+            if not os.path.exists(src_path) or os.path.getsize(src_path) == 0:
+                continue                              # the huge sheet is a real file only in the document editor
+            # The 200% sheet is the best source for icons we do not repaint; read it before any file is rewritten.
+            src = Image.open(os.path.join(sheet_dir, f'icons{sheet}@2x.png')).convert('RGBA')
+            if src.width != cell * 2 * 2:
+                raise SystemExit(f"icons{sheet}@2x.png: width {src.width}, expected {cell * 4}")
             for scale, suffix in SCALES:
                 p = os.path.join(sheet_dir, f'icons{sheet}{suffix}.png')
-                img = Image.open(p).convert('RGBA')
-                cpx = round(cell * scale)
-                if img.width != cpx * 2:
-                    raise SystemExit(f"{p}: width {img.width}, expected {cpx * 2}")
-                bpx = round(box * scale)
-                for cls, (ph, _box, row) in todo.items():
+                f = k * scale / 2.0                   # from the 200% source to this sheet
+                size = (round(src.width * f), round(src.height * f))
+                # resample with premultiplied alpha so transparent pixels do not darken the edges
+                img = src.convert('RGBa').resize(size, Image.LANCZOS).convert('RGBA')
+                cpx = round(target * scale)
+                bpx = round(box * k * scale)
+                for cls, (ph, row) in todo.items():
                     cell_arr = cell_image(glyphs.alpha(ph, bpx), cpx, bpx, color0, color1)
-                    y0 = round(row * scale)
+                    y0 = round(row * k * scale)
                     if y0 + cpx > img.height:
                         raise SystemExit(f"{p}: row {row} is outside the sheet")
                     img.paste(Image.fromarray(cell_arr, 'RGBA'), (0, y0))
                 if not a.dry_run:
                     img.save(p, optimize=True)
             svg = os.path.join(sheet_dir, f'icons{sheet}@2.5x.svg')
-            if not a.dry_run:
-                patch_svg_sheet(svg, {c: (v[0], v[1]) for c, v in todo.items()}, glyphs, cell)
+            if todo and not a.dry_run:
+                patch_svg_sheet(svg, {c: (v[0], box) for c, v in todo.items()}, glyphs, cell)
             total[sheet] += len(todo)
-            print(f"  {ed:18} {sheet:5} {len(todo):3} icons replaced")
+            print(f"  {ed:18} {sheet:5} {len(todo):3} icons replaced, sheets rebuilt at {target}px cells")
     print(f"icons: Phosphor Duotone in the modern sheets - small {total['small']}, big {total['big']}, huge {total['huge']} (per editor counts above)")
     if missing:
         print(f"note: {len(missing)} mapped icon(s) not present in some editors' sheets (normal: sets differ per editor), e.g. {missing[:3]}")

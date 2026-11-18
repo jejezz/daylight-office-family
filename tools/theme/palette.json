@@ -15,7 +15,9 @@
     "strokeStrong": "255,255,255,0.20",
     "hover": "255,255,255,0.08",
     "press": "255,255,255,0.16",
-    "checkedMix": 0.24
+    "checkedMix": 0.24,
+    "header": { "document": "#1F4E8C", "spreadsheet": "#1B6B43", "presentation": "#B8421F", "pdf": "#A3231A", "visio": "#34479E" },
+    "headerText": "#FFFFFF"
   },
   "light": {
     "theme": "theme-white",
@@ -32,7 +34,9 @@
     "strokeStrong": "0,0,0,0.14",
     "hover": "0,0,0,0.06",
     "press": "0,0,0,0.12",
-    "checkedMix": 0.16
+    "checkedMix": 0.16,
+    "header": { "document": "#2B579A", "spreadsheet": "#217346", "presentation": "#D24726", "pdf": "#B30B00", "visio": "#3955A3" },
+    "headerText": "#FFFFFF"
   },
   "common": {
     "_comment": "Not color: UI font stack and corner radii (UX-DESIGN 4.3: buttons 8px, windows 12px). SeoulNamsan is used when installed; Hangul falls back to Malgun Gothic.",
@@ -45,9 +49,14 @@
     "toolbar-tab-radius": "7px"
   },
   "sizes": {
-    "_comment": "Toolbar button sizes (px) for both themes. Upstream modern theme: button 24, gap 12, controls 84. UX-DESIGN asks 28-34.",
-    "x-small-btn-size": "28px",
+    "_comment": "UI sizes (px) for both themes, about 15% above the first Saturn pass (decided 2026-11-18 from previews: text 12, button 28, controls 90 felt 20-30% smaller than MS Office). Upstream modern theme: text 12, button 24, gap 12, controls 84.",
+    "font-size-base": "14px",
+    "x-small-btn-size": "32px",
     "toolbar-small-btn-margin-top": "10px",
-    "toolbar-height-controls": "90px"
+    "toolbar-height-controls": "104px"
+  },
+  "layout": {
+    "_comment": "Layout numbers the editors keep in JavaScript (Common.Utils.InternalSettings), patched into common/main/lib/util/utils.js at build time. The title row (quick buttons + document name) is 28 upstream; with 32px buttons it needs margin: 32 + 4 + 4 = 40.",
+    "document-title-height": 40
   }
 }

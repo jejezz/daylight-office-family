@@ -36,7 +36,10 @@ def static_check(app, upstream):
         for sheet in ('small', 'big', 'huge'):
             if not mapping.get(sheet):
                 continue
-            cell, box = style['cell'][sheet], style['box'][sheet]
+            c0px = style['cell'][sheet]
+            cell = style['scaleUp'][sheet]          # sheets are rebuilt at this cell size (100%)
+            kk = cell / c0px
+            box = round(style['box'][sheet] * kk)
             off = (cell - box) // 2
             if not any(('btn-' + n) in rows[sheet] for n in mapping[sheet]):
                 continue   # this editor has none of the mapped icons of this sheet (huge exists in the document editor only)
@@ -65,8 +68,10 @@ def static_check(app, upstream):
                 cls = 'btn-' + name
                 if cls not in rows[sheet]:
                     continue
-                y = rows[sheet][cls]
-                n, o = new[y:y + cell], old[y:y + cell]
+                y0 = rows[sheet][cls]
+                y = round(y0 * kk)
+                n = new[y:y + cell]
+                o = np.array(Image.fromarray(old[y0:y0 + c0px]).resize((cell * 2, cell), Image.LANCZOS))
                 checked += 1
                 tag = f"{ed}/{sheet}/{cls}"
                 if np.array_equal(n, o):

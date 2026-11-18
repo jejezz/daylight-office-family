@@ -25,24 +25,24 @@ Check 'app starts' ($null -ne $w)
 if (-not $w) { exit 1 }
 Focus-AppWindow $w.Process
 Start-Sleep -Seconds 14
-[void](Click-Tab $w.Process 98)                                   # Home tab (checked by its underline)
+[void](Click-Tab $w.Process 105)                                   # Home tab (checked by its underline)
 $osLight = (Get-ItemProperty 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize' -ErrorAction SilentlyContinue).AppsUseLightTheme
 $darkArg = @()
 if ($osLight -eq 0) { $darkArg = @('--dark') }
 $shot = Join-Path $root ("build\shots\icons-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + ".png")
 Save-WindowShot $w.Process $shot
-$cases = @(@('bold', 145, 'text-b'), @('italic', 177, 'text-italic'), @('underline', 209, 'text-underline'), @('strikethrough', 241, 'text-strikethrough'))
+$cases = @(@('bold', 154, 'text-b'), @('italic', 190, 'text-italic'), @('underline', 226, 'text-underline'), @('strikethrough', 262, 'text-strikethrough'))
 foreach ($c in $cases) {
-  $o = & $py $verify --shot $shot --at ("{0},156" -f $c[1]) --icon $c[2] --box 20 @darkArg 2>&1
+  $o = & $py $verify --shot $shot --at ("{0},176" -f $c[1]) --icon $c[2] --box 23 @darkArg 2>&1
   Check ("Home tab shows the Phosphor '" + $c[0] + "' icon") ($LASTEXITCODE -eq 0) (($o | Select-Object -Last 1) -join '')
 }
-# big icons (Insert tab, 28 px cells with a 24 px glyph)
-if (Click-Tab $w.Process 156) {
+# big icons (Insert tab, 32 px cells with a 27 px glyph after the 15% scale-up)
+if (Click-Tab $w.Process 168) {
   Start-Sleep -Seconds 1
   $shot2 = Join-Path $root ("build\shots\icons-insert-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + ".png")
   Save-WindowShot $w.Process $shot2
-  foreach ($c in @(@('table', 242, 'table'), @('image', 295, 'image'))) {
-    $o = & $py $verify --shot $shot2 --at ("{0},122" -f $c[1]) --icon $c[2] --box 24 2>&1
+  foreach ($c in @(@('table', 266, 'table'), @('image', 322, 'image'))) {
+    $o = & $py $verify --shot $shot2 --at ("{0},138" -f $c[1]) --icon $c[2] --box 27 2>&1
     Check ("Insert tab shows the Phosphor '" + $c[0] + "' (big) icon") ($LASTEXITCODE -eq 0) (($o | Select-Object -Last 1) -join '')
   }
 } else { Check 'Insert tab opens' $false }

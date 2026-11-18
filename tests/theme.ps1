@@ -56,35 +56,35 @@ function Shot-Pixels($name) {
 $expect = if ($sysIsDark) { $pal.dark } else { $pal.light }
 $ok = $false
 foreach ($i in 1..40) {
-  $bm = Shot-Pixels 'poll'; $c = $bm.GetPixel(760, 100); $bm.Dispose()
+  $bm = Shot-Pixels 'poll'; $c = $bm.GetPixel(760, 112); $bm.Dispose()
   if (Near $c $expect.surface) { $ok = $true; break }
   Start-Sleep -Seconds 1
 }
 $mode = if ($sysIsDark) { 'dark' } else { 'light' }
 $bm = Shot-Pixels "default-$mode"
-Check "default theme follows the system ($mode)" $ok ("toolbar=" + (Hex $bm.GetPixel(760, 100)) + " expected " + $expect.surface)
+Check "default theme follows the system ($mode)" $ok ("toolbar=" + (Hex $bm.GetPixel(760, 112)) + " expected " + $expect.surface)
 Check 'canvas around the page' (Near $bm.GetPixel(120, 450) $expect.canvas) ((Hex $bm.GetPixel(120, 450)) + " expected " + $expect.canvas)
-Check 'title strip inside the editor' (Near $bm.GetPixel(400, 48) $expect.bar) ((Hex $bm.GetPixel(400, 48)) + " expected " + $expect.bar)
+Check 'title strip inside the editor (Word blue for a document)' (Near $bm.GetPixel(400, 48) $expect.header.document) ((Hex $bm.GetPixel(400, 48)) + " expected " + $expect.header.document)
 Check 'native window background (editors.exe theme JSON)' (Near $bm.GetPixel(700, 14) $expect.surface) ((Hex $bm.GetPixel(700, 14)) + " expected " + $expect.surface)
 $bm.Dispose()
 
 # --- switch the theme through View > Interface Theme: menu = Same as system / Light / Dark
-$viewOk = Click-Tab $w.Process 460                                         # View tab (checked by its underline)
+$viewOk = Click-Tab $w.Process 511                                         # View tab (checked by its underline)
 Check 'View tab opens' $viewOk
 $switched = $false
 if ($viewOk) {
   # the Interface Theme button only exists on the View tab, so this click cannot hit a document command
   $r = Get-WindowRect $w.Process
-  [DaylightUi]::Click($r.L + 517, $r.T + 148); Start-Sleep -Seconds 1
+  [DaylightUi]::Click($r.L + 583, $r.T + 140); Start-Sleep -Seconds 1
   Save-WindowShot $w.Process (Join-Path $shots "theme-$stamp-menu.png")
   $other = if ($sysIsDark) { 'light' } else { 'dark' }
-  $otherY = if ($sysIsDark) { 211 } else { 237 }                          # Light / Dark entries of the menu
-  [DaylightUi]::Click($r.L + 530, $r.T + $otherY); Start-Sleep -Seconds 3
-  [void](Click-Tab $w.Process 98)                                         # back to Home
+  $otherY = if ($sysIsDark) { 237 } else { 263 }                          # Light / Dark entries of the menu
+  [DaylightUi]::Click($r.L + 600, $r.T + $otherY); Start-Sleep -Seconds 3
+  [void](Click-Tab $w.Process 105)                                         # back to Home
   $exp2 = if ($sysIsDark) { $pal.light } else { $pal.dark }
   $switched = $true
   $bm = Shot-Pixels "switched-$other"
-  Check "switching to $other applies its palette" ((Near $bm.GetPixel(760, 100) $exp2.surface) -and (Near $bm.GetPixel(120, 450) $exp2.canvas)) ("toolbar=" + (Hex $bm.GetPixel(760, 100)) + " canvas=" + (Hex $bm.GetPixel(120, 450)))
+  Check "switching to $other applies its palette" ((Near $bm.GetPixel(760, 112) $exp2.surface) -and (Near $bm.GetPixel(120, 450) $exp2.canvas)) ("toolbar=" + (Hex $bm.GetPixel(760, 112)) + " canvas=" + (Hex $bm.GetPixel(120, 450)))
   Check "native window follows the $other theme" (Near $bm.GetPixel(700, 14) $exp2.surface) ((Hex $bm.GetPixel(700, 14)) + " expected " + $exp2.surface)
   $bm.Dispose()
 }
@@ -97,6 +97,15 @@ $bm = Shot-Pixels 'start'
 $c = $bm.GetPixel(47, 400)
 Check 'start screen left rail uses the palette canvas color' (Near $c $cur.canvas) ((Hex $c) + " expected " + $cur.canvas)
 $bm.Dispose()
+# give the user their setting back: the test switched the theme, so choose 'Same as system' again (View > Interface Theme > first entry)
+if ($switched) {
+  [DaylightUi]::Click($r.L + 190, $r.T + 17); Start-Sleep -Seconds 3
+  if (Click-Tab $w.Process 511) {
+    [DaylightUi]::Click($r.L + 583, $r.T + 140); Start-Sleep -Seconds 1
+    [DaylightUi]::Click($r.L + 622, $r.T + 211); Start-Sleep -Seconds 3
+    Check 'theme setting restored to Same as system' $true 'clicked'
+  } else { Check 'theme setting restored to Same as system' $false 'View tab did not open' }
+}
 [void](Close-App $app)
 Get-ChildItem $shots -Filter "theme-$stamp-poll.png" -ErrorAction SilentlyContinue | Remove-Item -Force -ErrorAction SilentlyContinue
 
