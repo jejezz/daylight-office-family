@@ -37,6 +37,8 @@ ew.docx` 의 테마 글꼴(Arial)을 빌드가 `tools/ko/apply.py` 로 "맑은 �
 
 - 2026-11-18 새 문서 기본 글꼴 = OS 시스템체(결정): Windows 는 맑은 고딕, macOS 는 Apple 고딕(`Apple SD Gothic Neo`, 지금은 빌드 안 함). `tools/ko/terms.json` 의 `newDocFont` 가 `{windows, macos}` 가 됐고, `tools/ko/apply.py` 가 ko-KR 틀 3개를 고친다: new.docx(기존), new.xlsx(기본 셀 글꼴·테마 Calibri), new.pptx(주 테마의 Arial, 글머리 기호 Arial·메모 테마는 그대로). 치환 개수가 다르면 빌드 실패. 재빌드, 스모크 11/11, 틀 zip·XML 구조와 글꼴 이름 확인. 화면 확인함(한국어 UI, 틀 3개를 열어 봄): 문서·표는 글꼴 칸이 맑은 고딕(11), 프레젠테이션은 제목 상자를 누르면 맑은 고딕(60). 다른 언어 틀은 그대로.
 
+- 2026-11-18 보조 모니터 175%(창 DPI 168)에서 점검: 앱을 띄운 뒤 `SetWindowPos` 로 보조 모니터에 옮기고(시험 스크립트는 DPI 인식으로 돌려야 실제 픽셀이 잡힌다) 문서·표·프레젠테이션 편집기를 원본 해상도로 캡처. 탭 줄·메뉴·리본 아이콘(Phosphor)·글꼴 칸·눈금자·상태 줄이 모두 또렷하고 글자 번짐·잘림 없음, 리본 배치도 정상. 앞서 적은 `QT_SCALE_FACTOR` 방식은 쓸 수 없지만 실제 보조 모니터로는 점검이 된다. **안 본 것**: 시작 화면, 대화상자 크기, 250% 배율, 모니터 간 창 끌어 옮기기(한 번 옮긴 뒤 상태만 봄).
+
 ## 2026-11-17 — M6 배포 (진행 중, 1차: 설치 프로그램)
 **한 일**
 - Inno Setup 6.7.4 설치(공식 GitHub 릴리스 `jrsoftware/issrc` is-6_7_4, 10.6 MB, SHA-256 `A549929319F9120716677C685535CA4671E4B937B5FDC87E2585F32D8EB30E8C`, 서명 유효 Pyrsys B.V.). 사용자 승인 후 `external/innosetup/` 에 사용자별 설치(저장소 제외, 각 PC에서 다시 받는다).
