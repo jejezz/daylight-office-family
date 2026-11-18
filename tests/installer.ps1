@@ -20,6 +20,8 @@ $prog = Get-ItemProperty 'HKCU:\Software\Classes\.docx\OpenWithProgids' -ErrorAc
 $userCss = Join-Path $dir 'daylight-user.css'
 Set-Content $userCss '/* keep me */' -Encoding ASCII
 Check "'Open with' entry registered (assoc task)" ($null -ne $prog.'Daylight.Document.docx')
+$openCmd = (Get-ItemProperty 'HKCU:\Software\Classes\Daylight.Document.docx\shell\open\command' -ErrorAction SilentlyContinue).'(default)'
+Check 'open command keeps language + DoH-off flags' ($openCmd -like '*--lang=ko-KR*' -and $openCmd -like '*--disable-features=DnsOverHttps*') $openCmd
 $ic = (Get-ItemProperty 'HKCU:\Software\Classes\Daylight.Document.docx\DefaultIcon' -ErrorAction SilentlyContinue).'(default)'
 Check 'docx has its own file-type icon (resource -108)' ($ic -like '*DesktopEditors.exe,-108') $ic
 # upgrade over the existing install: a marker in the user data folder must survive, and the app must still start

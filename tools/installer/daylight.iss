@@ -12,7 +12,9 @@
 #endif
 #define AppName "Daylight Office"
 #define AppExe "DesktopEditors.exe"
-#define LangArg "--lang=ko-KR"
+; LangArg is used by every shortcut and file association. The second flag turns off Chromium's automatic
+; encrypted-DNS upgrade (otherwise the app talks to dns.google when the PC uses Google DNS).
+#define LangArg "--lang=ko-KR --disable-features=DnsOverHttps"
 
 [Setup]
 AppId={{7B1E2C3A-5D4F-4E8A-9C21-D41F6A0B3E77}
