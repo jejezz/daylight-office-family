@@ -2,12 +2,12 @@
 
 ## 목표
 가족·친지(비상업)가 Word/Excel/PowerPoint 대신 쓸 오피스. **ONLYOFFICE Desktop Editors(공식 설치본, 버전 고정)를 기반으로 UX/UI·이름·아이콘을 바꿔 배포**한다. 기능은 거의 전부 지원해야 한다.
-이전 시도(Avalonia + LibreOfficeKit 직접 구현)는 `../OFFICE` 에 보관한다(삭제하지 않음). 이 저장소로는 옮기지 않는다.
+이전 시도(Avalonia + LibreOfficeKit 직접 구현)는 상위 폴더 `..`(옛 OFFICE git 저장소, 작업 트리 파일은 지워져 있고 `git show HEAD:경로` 로 읽는다)에 보관한다(삭제하지 않음). 이 저장소로는 옮기지 않는다.
 
 ## 확정된 결정
 - 방식: **오버레이**. 저장소에는 업스트림 소스·바이너리를 넣지 않고 `patches/`, `overlay/`, `tools/`, `tests/`, `docs/` 만 둔다. `tools/build.ps1` 이 고정된 업스트림 설치 트리에 패치·덮어쓰기를 적용해 `build/app/` 을 만든다.
 - 구조: **단일 앱 + 문서 탭**(Writer/Calc/Impress 3개 exe 분리는 폐기).
-- 이용감: 메뉴 구성, 일반 용어, 표준 단축키 유지. 시각 스타일·정보 구조는 `../OFFICE/docs/UX-DESIGN.md` 를 사양으로 삼아 ONLYOFFICE 구조로 옮긴다(`docs/PLAN.md`).
+- 이용감: 메뉴 구성, 일반 용어, 표준 단축키 유지. 시각 스타일·정보 구조는 옛 저장소의 `docs/UX-DESIGN.md`(`git -C .. show HEAD:docs/UX-DESIGN.md`) 를 사양으로 삼아 ONLYOFFICE 구조로 옮긴다(`docs/PLAN.md`).
 - 이름·로고·아이콘: 독자 제작. **ONLYOFFICE 를 제품명·주 식별자로 쓰지 않는다**(상표). 저장소 이름·도메인에도 쓰지 않는다. 설명할 때만 "ONLYOFFICE 기반"이라고 쓴다.
 - 라이선스: 코드 AGPLv3 + 추가 조건(고지 유지, 수정 표시, 정보 화면에 원 개발자 표시, 상표 권리 없음). 아이콘·삽화는 CC BY-SA 4.0. **정보(About) 화면의 원 개발자 표시와 수정본 고지는 지우거나 숨기지 않는다.** 자세한 것은 `docs/INVESTIGATION.md` 1절.
 - 업스트림 버전은 `upstream.txt` 에 고정한다. 자동 업데이트는 막는다(수정이 덮어써짐). 올릴 때는 패치 충돌을 확인하고 `docs/PROGRESS.md` 에 기록한다.

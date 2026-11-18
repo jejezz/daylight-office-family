@@ -1,6 +1,6 @@
 # 개발 계획 초안 — ONLYOFFICE Desktop Editors 기반 (2026-11-17)
 
-상태: **초안(사용자 검토 전)**. 근거는 같은 폴더의 `README.md`(조사·시험 기록)와 `OFFICE/docs/UX-DESIGN.md`, `ICONS.md`, `APP-SPLIT.md`.
+상태: **초안(사용자 검토 전)**. 근거는 같은 폴더의 `README.md`(조사·시험 기록)와 옛 저장소(`..`)의 `docs/UX-DESIGN.md`, `ICONS.md`, `APP-SPLIT.md`.
 표기: ✔ 시험으로 확인함 / ◐ 문서·코드 읽기로만 확인 / ? 미확인.
 
 ## 0. 결정 (사용자 2026-11-17)

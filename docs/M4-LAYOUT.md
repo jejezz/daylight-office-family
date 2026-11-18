@@ -1,6 +1,6 @@
 # M4 정보 구조 초안 (2026-11-17, 사용자 승인 대기)
 
-화면 근거: `docs/shots/m4-tour-word.png`, `m4-tour-cell.png`. 기준 사양은 `../OFFICE/docs/UX-DESIGN.md` 3절(P0/P1). 숨김은 `patches/web-apps/0001` 의 `_daylightHidden` 목록(탭 단위 id)과, 더 잘게 숨길 때는 테마 CSS 주입(`tools/theme`)으로 한다.
+화면 근거: `docs/shots/m4-tour-word.png`, `m4-tour-cell.png`. 기준 사양은 옛 저장소의 `docs/UX-DESIGN.md`(`git -C .. show HEAD:docs/UX-DESIGN.md`) 3절(P0/P1). 숨김은 `patches/web-apps/0001` 의 `_daylightHidden` 목록(탭 단위 id)과, 더 잘게 숨길 때는 테마 CSS 주입(`tools/theme`)으로 한다.
 
 ## 이번에 적용한 것
 | 숨김 | 이유 |
