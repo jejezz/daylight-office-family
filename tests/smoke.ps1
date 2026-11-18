@@ -23,7 +23,7 @@ Check 'test document exists' (Test-Path $doc) $doc
 $info = Join-Path $app 'BUILD-INFO.txt'
 $applied = 0
 if (Test-Path $info) { $applied = @(Get-Content $info | Where-Object { $_ -like 'patch=*' }).Count }
-$expected = @(Get-ChildItem (Join-Path $root 'patches') -Recurse -Filter *.patch -ErrorAction SilentlyContinue).Count
+$expected = @(Get-ChildItem (Join-Path $root 'patches') -Recurse -Filter *.patch -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notlike '*\patches\sdkjs\*' }).Count
 Check 'all patches recorded in BUILD-INFO' ($applied -eq $expected) ("applied=$applied expected=$expected")
 $lm = Join-Path $app 'editors\web-apps\apps\common\main\lib\controller\LayoutManager.js'
 Check 'patch marker: hidden-elements list' ((Test-Path $lm) -and ((Get-Content $lm -Raw) -match '_daylightHidden')) 'LayoutManager.js'

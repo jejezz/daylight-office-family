@@ -79,3 +79,10 @@
 - **시험의 한계:** `tests\smoke.ps1` 은 문서가 실제로 그려졌는지 보지 않아 엔진이 고장 나도 통과한다(`min` 을 지워도 통과). **단계 A 에서 `tests\engine.ps1` 로 화면 픽셀(눈금자·본문 글자)을 검사해야 한다.**
 - **입력 지연(`tests\edit-latency.ps1`, 30타):** 원본 엔진 중앙값 67 ms / 최대 82 ms, 줄이지 않은 새 엔진 100 ms / 121 ms(+약 50%). 기준 3000 ms 대비 매우 작지만 계획 3절의 "20% 이내" 기준은 넘는다. 다만 이 수치는 시험 도구의 입력·캡처 시간을 포함한다. 시작 시간은 둘 다 3 초대로 눈에 띄는 차이 없음.
 - **결론:** 0단계 통과(엔진 교체 가능). 걸림돌은 두 가지: ① 줄이지 않은 엔진의 약간의 지연·용량 증가(필요하면 Closure+Java 로 줄이는 방안을 후속 검토), ② `.bin` 캐시 불일치(동작에는 문제 없음, 시작 시간 확인 필요). `build\app` 은 원본 엔진으로 되돌려 놓았다(`build\sdk-orig` 에 백업).
+
+## 8. 단계 A 결과 (2026-11-18)
+
+- A1: 소스는 `v10.0.0.169` 로 맞춤(0단계). `build-sdk.ps1` 이 빌드 전후에 태그 체크아웃·`git clean` 으로 소스를 깨끗이 되돌린다.
+- A2: `tools/engine/build-sdk.ps1`, `patches/sdkjs/`(비어 있음), `tools/build.ps1` 4f 단계(`-ForceEngine` 옵션), 앱 패치 목록에서 `patches/sdkjs/` 제외(`build.ps1`, `smoke.ps1`). 패치가 없으면 엔진 단계는 건너뛰고 설치본 엔진을 그대로 둔다. BUILD-INFO 에 `engine=...`, `engine-patch=...` 줄을 남긴다.
+- A3: `tests/engine.ps1`. 본문 글자(검은 픽셀 수)·눈금자(명암 변화)·"Loading document" 상자 부재를 2 초마다 최대 60 초 확인. 확인: 소스 빌드 엔진(0패치)에서 8/8 통과(글자 3 초 안에 그려짐), `sdk-all-min.js` 만 원본으로 되돌리면 3개 실패(시험이 실제로 고장을 잡음), 패치 없는 일반 빌드에서도 통과, `smoke` 11/11.
+- 작업 위치: worktree `../daylight-office-engine`(브랜치 `engine-sdk`). `external/` 은 메인 저장소 것을 junction 으로 공유하므로 두 작업 트리가 같은 `external/sdkjs` 를 쓴다(빌드 때만 건드리고 끝에 원복).
