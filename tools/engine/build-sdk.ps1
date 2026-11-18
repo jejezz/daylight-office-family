@@ -25,6 +25,14 @@ function Git-Src { & $git -C $src @args; if ($LASTEXITCODE -ne 0) { throw "git $
 Git-Src config core.autocrlf false   # sources are LF; patches carry LF, so no end-of-line conversion
 Git-Src checkout -q -f $tag
 Git-Src clean -q -fdx
+# A clone made while core.autocrlf was on has CRLF files in the working tree (index says LF); "checkout -f" does not rewrite
+# files git thinks are unchanged, so the LF patches would fail ("patch does not apply"). Rewrite the tree once if so.
+$crlf = @(& $git -C $src ls-files --eol | Where-Object { $_ -match 'i/lf\s+w/crlf' } | Select-Object -First 1)
+if ($crlf.Count -gt 0) {
+  Write-Host "engine: external\sdkjs has CRLF files (cloned with autocrlf); rewriting the working tree as LF ..."
+  Git-Src rm -r -q --cached .
+  Git-Src reset -q --hard $tag
+}
 try {
   foreach ($p in $patches) {
     & $git -C $src apply -p1 --whitespace=nowarn $p.FullName
