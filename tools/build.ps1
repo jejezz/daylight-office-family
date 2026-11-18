@@ -77,6 +77,19 @@ if ($LASTEXITCODE -ne 0) { throw "icons\apply.py failed ($LASTEXITCODE)" }
 & $py.Source (Join-Path $PSScriptRoot 'ko\apply.py') --app $stage
 if ($LASTEXITCODE -ne 0) { throw "ko\apply.py failed ($LASTEXITCODE)" }
 
+# 4e. editors.exe must start without the launcher: DesktopEditors.exe only adds "./converter" to PATH before
+#     starting editors.exe, so a taskbar-pinned icon (which runs editors.exe itself) failed with
+#     "kernel_network.dll was not found". Windows looks for imports next to the exe first, so put the
+#     converter DLLs that editors.exe imports (directly or indirectly) there too (list found by walking its import table).
+$rootDlls = 'djvufile','doctrenderer','docxrenderer','graphics','icudt74','icuuc74','kernel','kernel_network',
+            'ofdfile','ooxmlsignature','pdffile','unicodeconverter','xpsfile'
+foreach ($n in $rootDlls) {
+  $src = Join-Path $stage "converter\$n.dll"
+  if (-not (Test-Path $src)) { throw "converter\$n.dll missing (upstream changed? redo the import walk in 4e)" }
+  Copy-Item $src (Join-Path $stage "$n.dll") -Force
+}
+Write-Host "standalone editors.exe: $($rootDlls.Count) converter DLLs copied to the app root"
+
 # 5. build record
 $lines = @("upstream_version=$Version", ("built_at=" + (Get-Date -Format 's')))
 if (Test-Path (Join-Path $root '.git')) {
