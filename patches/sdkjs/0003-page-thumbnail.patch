@@ -1,0 +1,69 @@
+diff --git a/word/api.js b/word/api.js
+index b6df2be..66280a1 100644
+--- a/word/api.js
++++ b/word/api.js
+@@ -7855,6 +7855,56 @@ background-repeat: no-repeat;\
+ 	{
+ 		return this.WordControl.m_oDrawingDocument.m_lPagesCount;
+ 	};
++	/**
++	 * Daylight: draws one page into a new canvas that is nWidthPx wide (the height follows the page proportions).
++	 * Used for the page thumbnails in the navigation panel. Returns null when the page cannot be drawn right now
++	 * (not calculated yet, or the document is being recalculated).
++	 */
++	asc_docs_api.prototype.asc_getPageThumbnail = function(nPage, nWidthPx)
++	{
++		var logicDocument = this.private_GetLogicDocument();
++		var dd            = this.WordControl ? this.WordControl.m_oDrawingDocument : null;
++		if (!logicDocument || !dd || nPage < 0 || nPage >= dd.m_lCountCalculatePages || !dd.m_arrPages[nPage] || !logicDocument.Pages[nPage])
++			return null;
++		if (!logicDocument.CanDrawPage(nPage))
++			return null;
++
++		var page = dd.m_arrPages[nPage];
++		if (!(page.width_mm > 0) || !(page.height_mm > 0))
++			return null;
++
++		var w = Math.max(8, nWidthPx >> 0);
++		var h = Math.max(8, Math.round(w * page.height_mm / page.width_mm));
++
++		var canvas    = document.createElement('canvas');
++		canvas.width  = w;
++		canvas.height = h;
++
++		var g = new AscCommon.CGraphics();
++		g.init(canvas.getContext('2d'), w, h, page.width_mm, page.height_mm);
++		g.m_oFontManager        = AscCommon.g_fontManager;
++		g.endGlobalAlphaColor   = this.getPageBackgroundColor();
++		g.transform(1, 0, 0, 1, 0, 0);
++		if (this.isDarkMode)
++			g.setDarkMode();
++
++		// a thumbnail shows the page only: no paragraph marks, no grid
++		var oldMarks = this.ShowParaMarks, oldGrid = this.ShowGridlines;
++		this.ShowParaMarks = false;
++		this.ShowGridlines = false;
++		try
++		{
++			logicDocument.DrawPage(nPage, g);
++		}
++		catch (e)
++		{
++			canvas = null;
++		}
++		this.ShowParaMarks = oldMarks;
++		this.ShowGridlines = oldGrid;
++
++		return canvas;
++	};
+ 	asc_docs_api.prototype.getCurrentPage = function()
+ 	{
+ 		return this.WordControl.m_oDrawingDocument.m_lCurrentPage;
+@@ -15498,6 +15548,7 @@ background-repeat: no-repeat;\
+ 	asc_docs_api.prototype['zoom']                                      = asc_docs_api.prototype.zoom;
+ 	asc_docs_api.prototype['goToPage']                                  = asc_docs_api.prototype.goToPage;
+ 	asc_docs_api.prototype['getCountPages']                             = asc_docs_api.prototype.getCountPages;
++	asc_docs_api.prototype['asc_getPageThumbnail']                      = asc_docs_api.prototype.asc_getPageThumbnail;
+ 	asc_docs_api.prototype['getCurrentPage']                            = asc_docs_api.prototype.getCurrentPage;
+ 	asc_docs_api.prototype['sync_countPagesCallback']                   = asc_docs_api.prototype.sync_countPagesCallback;
+ 	asc_docs_api.prototype['sync_currentPageCallback']                  = asc_docs_api.prototype.sync_currentPageCallback;

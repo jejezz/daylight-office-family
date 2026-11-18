@@ -100,3 +100,11 @@
 - 앱 패치 `web-apps/0004-view-gridlines.patch`: 보기 탭 "눈금자" 아래 "눈금선"(설정 저장·시작 시 복원). 한국어 "눈금선"(`terms.json` `add`).
 - 시행착오: 처음엔 여백 표식처럼 오버레이 캔버스에 그렸으나 글자 위로 덮여 Word 와 달랐다 → 쪽 그림 방식으로 변경. 농도는 Word 캡처와 비교해 조정(최종 밝기 약 214). 사용자가 화면에서 확인함(양호).
 - 소스 줄바꿈 주의: `external/sdkjs` 는 처음 복제 때 CRLF 로 풀린 파일이 있어 패치 생성 때 전체 파일 diff 가 났다. `git checkout -f` + `git reset --hard` 로 LF 로 맞춘 뒤 생성해야 한다(저장소 blob 은 LF).
+
+## 11. 단계 D 결과 (2026-11-18)
+
+- 방식: 왼쪽 "탐색"(제목 목록) 패널 머리글에 "제목 / 페이지" 탭(별도 사이드 바 아이콘은 만들지 않음). 선택한 탭은 `de-navigation-tab` 에 저장.
+- 엔진 패치 `patches/sdkjs/0003-page-thumbnail.patch`: `asc_getPageThumbnail(쪽, 너비px)` — 쪽 하나를 새 캔버스에 `LogicDocument.DrawPage` 로 그려 돌려줌(문단 표식·눈금선은 잠시 끔, 다시 계산 중이면 null). 새 엔진 이벤트는 만들지 않고 기존 `asc_onCountPages`(쪽 수), `asc_onEndCalculate`(편집 후 전체 재계산), `asc_onCurrentPage`(현재 쪽)를 썼다.
+- 앱 패치 `web-apps/0005-navigation-pages.patch`: 탭, 썸네일 목록(보이는 것만 한 장씩 그림, 편집 후 700ms·스크롤 60ms 디바운스), 클릭 → `goToPage`, 현재 쪽 강조·자동 스크롤. 한국어 "페이지".
+- 시행착오: 휠 스크롤이 안 됐다 — 편집기가 자체 스크롤러 밖의 휠을 가로채서였고, 제목 목록과 같은 `Common.UI.Scroller`(perfect-scrollbar)로 해결. 이 스크롤러는 자식 요소로 레일을 넣으므로 썸네일은 안쪽 `.dl-pages-in` 에만 다시 그린다.
+- 사용자가 화면에서 확인함(썸네일·이동·스크롤 양호). 남은 것: 사이드 바 아이콘 도움말 이름이 여전히 "제목"(이름·아이콘을 "탐색"으로 바꿀지 미정), 큰 문서(수십 쪽 이상) 성능은 사용자 사용 중 관찰.

@@ -17,6 +17,6 @@
   "DocumentHolder.textRulers": "눈금자"
  },
  "add": {
-  "documenteditor": {"DE.Views.ViewTab.textMarginMarks": "텍스트 경계", "DE.Views.ViewTab.textGridlines": "눈금선"}
+  "documenteditor": {"DE.Views.ViewTab.textMarginMarks": "텍스트 경계", "DE.Views.ViewTab.textGridlines": "눈금선", "DE.Views.Navigation.txtPages": "페이지"}
  }
 }
