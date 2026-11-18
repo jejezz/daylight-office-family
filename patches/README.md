@@ -15,6 +15,8 @@
 | 번호 | 파일 | 목적 | 확인 |
 |---|---|---|---|
 | 0001 | `web-apps/0001-layoutmanager-hidden-elements.patch` | `LayoutManager.js` 에 "누구에게나 숨길 요소" 목록(`_daylightHidden`)을 추가. 지금은 그리기·보호·플러그인 탭(`toolbar-draw`, `toolbar-protect`, `toolbar-plugins`)을 숨김. 더 숨길 후보는 `docs/M4-LAYOUT.md` | 스모크의 표식 확인 + 화면에서 "그리기" 탭 없음 |
+| 0002 | `web-apps/0002-view-margin-boundaries.patch` | 보기 탭에 "텍스트 경계" 체크 항목(엔진 패치 `sdkjs/0001` 의 `put_ShowMarginBoundaries` 호출, 설정 저장). 한국어 문구는 `tools/ko/terms.json` 의 `add` | `tests/margin-marks.ps1` (직접 눈으로도 확인) |
+| 0003 | `web-apps/0003-normal-page-margins.patch` | 레이아웃 > 여백 > "표준" 을 지역과 상관없이 상하좌우 25.4mm 로(업스트림은 미국·캐나다 밖에서 20/30/20/15, 좌우 비대칭). Word 와 같은 값 | 화면에서 표준 선택 후 눈금자 좌우 같은지 확인 |
 
 ## 엔진(sdkjs) 패치: `patches/sdkjs/`
 - 설치 트리가 아니라 **엔진 소스**(`external/sdkjs`, 태그 v10.0.0.169)에 적용한다. 경로는 sdkjs 루트 기준(예: `word/Drawing/DrawingDocument.js`), `git apply -p1`.

@@ -86,3 +86,10 @@
 - A2: `tools/engine/build-sdk.ps1`, `patches/sdkjs/`(비어 있음), `tools/build.ps1` 4f 단계(`-ForceEngine` 옵션), 앱 패치 목록에서 `patches/sdkjs/` 제외(`build.ps1`, `smoke.ps1`). 패치가 없으면 엔진 단계는 건너뛰고 설치본 엔진을 그대로 둔다. BUILD-INFO 에 `engine=...`, `engine-patch=...` 줄을 남긴다.
 - A3: `tests/engine.ps1`. 본문 글자(검은 픽셀 수)·눈금자(명암 변화)·"Loading document" 상자 부재를 2 초마다 최대 60 초 확인. 확인: 소스 빌드 엔진(0패치)에서 8/8 통과(글자 3 초 안에 그려짐), `sdk-all-min.js` 만 원본으로 되돌리면 3개 실패(시험이 실제로 고장을 잡음), 패치 없는 일반 빌드에서도 통과, `smoke` 11/11.
 - 작업 위치: worktree `../daylight-office-engine`(브랜치 `engine-sdk`). `external/` 은 메인 저장소 것을 junction 으로 공유하므로 두 작업 트리가 같은 `external/sdkjs` 를 쓴다(빌드 때만 건드리고 끝에 원복).
+
+## 9. 단계 B 결과 (2026-11-18)
+
+- 엔진 패치 `patches/sdkjs/0001-margin-boundaries.patch`: `DrawingDocument.DrawMarginBoundaries`(본문 영역 네 모서리 ㄱ자 표식, 팔은 여백 쪽, 14px), `HtmlPage.OnUpdateOverlay` 에서 호출, `api.put/get_ShowMarginBoundaries`. 화면 전용(인쇄·내보내기는 다른 경로).
+- 알게 된 것: ① 페이지의 `margin_right`/`margin_bottom` 은 너비가 아니라 **페이지 위의 위치(mm)**. ② `COverlay.Clear()` 는 기록된 사각형만 지우므로 표식을 그릴 때 `ClearAll` 과 전체 경계를 표시해야 해제 시 바로 지워진다. ③ `--remote-debugging-port=9333` 으로 시험 앱의 DevTools 에 접속해 엔진을 직접 조회할 수 있다(`tests/lib/cdp.py`).
+- 앱 패치 `web-apps/0002`: 보기 탭 "텍스트 경계" 체크(설정 저장, 시작 시 복원). `0003`: 여백 "표준"을 25.4mm 4면으로(Word 값).
+- 사용자가 화면에서 확인함(동작 양호). 자동 시험 `tests/margin-marks.ps1` 은 아직 끝까지 돌려 보지 못함(사용자가 PC 를 쓰는 중이라 중단) — 다음에 입력 가능할 때 한 번 실행해 확정한다.

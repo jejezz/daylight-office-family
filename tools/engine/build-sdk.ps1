@@ -22,6 +22,7 @@ if (-not (Test-Path (Join-Path $src '.git'))) { throw "engine source not found: 
 $tag = "v$Version"
 
 function Git-Src { & $git -C $src @args; if ($LASTEXITCODE -ne 0) { throw "git $($args -join ' ') failed in external\sdkjs" } }
+Git-Src config core.autocrlf false   # sources are LF; patches carry LF, so no end-of-line conversion
 Git-Src checkout -q -f $tag
 Git-Src clean -q -fdx
 try {

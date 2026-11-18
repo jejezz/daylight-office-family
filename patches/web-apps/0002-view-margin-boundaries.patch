@@ -1,0 +1,99 @@
+diff --git a/editors/web-apps/apps/documenteditor/main/app/controller/Main.js b/editors/web-apps/apps/documenteditor/main/app/controller/Main.js
+index 8bf53c2..7ee08c1 100644
+--- a/editors/web-apps/apps/documenteditor/main/app/controller/Main.js
++++ b/editors/web-apps/apps/documenteditor/main/app/controller/Main.js
+@@ -2123,6 +2123,7 @@ define([
+                     value = Common.localStorage.itemExists('de-hidden-rulers') ? Common.localStorage.getBool('de-hidden-rulers') : (this.appOptions.customization && !!this.appOptions.customization.hideRulers);
+                     Common.Utils.InternalSettings.set("de-hidden-rulers", value);
+                     me.api.asc_SetViewRulers(!value);
++                    me.api.put_ShowMarginBoundaries && me.api.put_ShowMarginBoundaries(Common.localStorage.getBool('de-show-margin-marks', false));
+ 
+                     me.api.asc_registerCallback('asc_onDocumentCanSaveChanged',  _.bind(me.onDocumentCanSaveChanged, me));
+                     /** coauthoring begin **/
+diff --git a/editors/web-apps/apps/documenteditor/main/app/controller/ViewTab.js b/editors/web-apps/apps/documenteditor/main/app/controller/ViewTab.js
+index 89fd6c1..9e48d9d 100644
+--- a/editors/web-apps/apps/documenteditor/main/app/controller/ViewTab.js
++++ b/editors/web-apps/apps/documenteditor/main/app/controller/ViewTab.js
+@@ -94,6 +94,7 @@ define([
+                     'zoom:towidth': _.bind(this.onBtnZoomTo, this, 'towidth'),
+                     'zoom:100': _.bind(this.onZoomTo100, this),
+                     'rulers:change': _.bind(this.onChangeRulers, this),
++                    'marginmarks:change': _.bind(this.onChangeMarginMarks, this),
+                     'darkmode:change': _.bind(this.onChangeDarkMode, this),
+                     'macros:click':  _.bind(this.onClickMacros, this),
+                     'macros:record':  _.bind(this.onClickMacrosRec, this),
+@@ -389,6 +390,12 @@ define([
+             Common.NotificationCenter.trigger('edit:complete', this.view);
+         },
+ 
++        onChangeMarginMarks: function (btn, checked) {
++            Common.localStorage.setBool('de-show-margin-marks', checked);
++            this.api.put_ShowMarginBoundaries(checked);
++            Common.NotificationCenter.trigger('edit:complete', this.view);
++        },
++
+         onClickMacros: function() {
+             if ( typeof Common.Views.MacrosDialog == "function" )
+                 (new Common.Views.MacrosDialog({
+diff --git a/editors/web-apps/apps/documenteditor/main/app/view/ViewTab.js b/editors/web-apps/apps/documenteditor/main/app/view/ViewTab.js
+index bdc56b5..612ca5a 100644
+--- a/editors/web-apps/apps/documenteditor/main/app/view/ViewTab.js
++++ b/editors/web-apps/apps/documenteditor/main/app/view/ViewTab.js
+@@ -114,6 +114,13 @@ define([
+                 '</div>' +
+                 '<div class="elset"></div>' +
+             '</div>' +
++            '<div class="separator long separator-margins"></div>' +
++            '<div class="group small">' +
++                '<div class="elset">' +
++                    '<span class="btn-slot text" id="slot-chk-marginmarks"></span>' +
++                '</div>' +
++                '<div class="elset"></div>' +
++            '</div>' +
+             '<div class="separator long macro"></div>' +
+             '<div class="group macro">' +
+                 '<span class="btn-slot text x-huge" id="slot-btn-macros"></span>' +
+@@ -155,6 +162,9 @@ define([
+                 me.chRulers.on('change', _.bind(function (checkbox, state) {
+                     me.fireEvent('rulers:change', [me.chRulers, state === 'checked']);
+                 }, me));
++                me.chMarginMarks.on('change', _.bind(function (checkbox, state) {
++                    me.fireEvent('marginmarks:change', [me.chMarginMarks, state === 'checked']);
++                }, me));
+                 me.chLeftMenu.on('change', _.bind(function (checkbox, state) {
+                     me.fireEvent('leftmenu:hide', [me.chLeftMenu, state === 'checked']);
+                 }, me));
+@@ -312,6 +322,17 @@ define([
+                 });
+                 this.lockedControls.push(this.chRulers);
+ 
++                // Daylight: show the text-area (margin) corner marks on the page
++                this.chMarginMarks = new Common.UI.CheckBox({
++                    lock: [_set.lostConnect, _set.disableOnStart],
++                    labelText: this.textMarginMarks,
++                    value: Common.localStorage.getBool('de-show-margin-marks', false),
++                    dataHint: '1',
++                    dataHintDirection: 'left',
++                    dataHintOffset: 'small'
++                });
++                this.lockedControls.push(this.chMarginMarks);
++
+                 this.btnMultiplePages = new Common.UI.Button({
+                     cls: 'btn-toolbar',
+                     iconCls: 'toolbar__icon btn-multiple-pages',
+@@ -456,6 +477,7 @@ define([
+                 this.chStatusbar.render($host.find('#slot-chk-statusbar'));
+                 this.chToolbar.render($host.find('#slot-chk-toolbar'));
+                 this.chRulers.render($host.find('#slot-chk-rulers'));
++                this.chMarginMarks.render($host.find('#slot-chk-marginmarks'));
+                 this.btnMacros && this.btnMacros.render($host.find('#slot-btn-macros'));
+                 this.chLeftMenu.render($host.find('#slot-chk-leftmenu'));
+                 this.chRightMenu.render($host.find('#slot-chk-rightmenu'));
+@@ -556,6 +578,7 @@ define([
+             textStatusBar: 'Status Bar',
+             textAlwaysShowToolbar: 'Always show toolbar',
+             textRulers: 'Rulers',
++            textMarginMarks: 'Text boundaries',
+             textDarkDocument: 'Dark document',
+             tipHeadings: 'Headings',
+             tipFitToPage: 'Fit to page',
