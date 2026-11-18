@@ -34,7 +34,7 @@
    ```
    powershell -ExecutionPolicy Bypass -File tools\build.ps1
    ```
-   끝에 `formats: save .xlsm` 다섯 줄, `engine: ... -> word` 와 `-> cell` 두 줄, `OK: build\app ready` 가 나오면 된다.
+   끝에 `formats: .xlsm in-place save is OFF` 한 줄(기본값), `engine: ... -> word` 와 `-> cell` 두 줄, `OK: build\app ready` 가 나오면 된다.
 
 ## 3. 시험 전에 꼭 지킬 것
 

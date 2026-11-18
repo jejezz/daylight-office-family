@@ -33,7 +33,7 @@ tests\installer.ps1               # 설치 파일을 build\install-test 에 조�
 tests\hanja.ps1                   # 한자 재변환 원본 비교(실제 키 입력, 시험 중 손대지 말 것)
 tests\engine.ps1                 # 편집 엔진(sdkjs)이 실제로 문서를 그리는지 화면 픽셀로 확인(smoke 는 못 잡음). 엔진 패치 시험: tests\margin-marks.ps1
 tests\network-audit.ps1           # 앱이 여는 외부 TCP 연결 관찰(-NoDoc 이면 시작 화면만)
-tests\xlsm-save.ps1               # xlsm 제자리 저장(Ctrl+S)·다른 이름으로 저장 확인(tools\formats, 시험 중 손대지 말 것)
+tests\xlsm-save.ps1               # (build.ps1 -XlsmSave 빌드 전용) xlsm 제자리 저장 확인. 기본 빌드는 xlsm 을 xlsx 로 변환해 저장(업스트림 동작)
 tests\icons-sheet.ps1             # 파일 형식 아이콘 73개를 한 장으로(눈으로 확인)
 tools\dev\set-user-defaults.ps1   # 개발 PC 용: UI 언어 등 기본값을 레지스트리에(설치 프로그램이 나중에 대신함)
 ```
