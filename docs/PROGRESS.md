@@ -35,6 +35,8 @@ ew.docx` 의 테마 글꼴(Arial)을 빌드가 `tools/ko/apply.py` 로 "맑은 �
 - (해결: 버그 아님) 스타일 칸이 1개만 보이는 현상은 창 너비에 따라 칸 수가 바뀌는 반응형 동작. 홈 탭 기준 창 너비 800~950px 은 0개("더" 메뉴로 들어감), 1010~1050px 은 1개, 1100px 2개, 1300px 3개, 1600px 5개. 업스트림도 같은 너비에서 1~2개(`build/shots/sg2-*`에서 확인, 정리함). 조치 없음.
 - (해결) 최근 파일 날짜가 영어로 나오던 것: 시작 화면의 `Intl` 형식기가 브라우저 기본 언어(영어)를 써서였다. `tools/brand/apply.py` 가 세 형식기를 UI 언어(`UC()`)로 만들도록 고침. `--lang=ko-KR` 화면에서 "54초 전" 확인.
 
+- 2026-11-18 새 문서 기본 글꼴 = OS 시스템체(결정): Windows 는 맑은 고딕, macOS 는 Apple 고딕(`Apple SD Gothic Neo`, 지금은 빌드 안 함). `tools/ko/terms.json` 의 `newDocFont` 가 `{windows, macos}` 가 됐고, `tools/ko/apply.py` 가 ko-KR 틀 3개를 고친다: new.docx(기존), new.xlsx(기본 셀 글꼴·테마 Calibri), new.pptx(주 테마의 Arial, 글머리 기호 Arial·메모 테마는 그대로). 치환 개수가 다르면 빌드 실패. 재빌드, 스모크 11/11, 틀 zip·XML 구조와 글꼴 이름 확인. **편집기에서 새 문서를 열어 글꼴 칸을 눈으로 확인하지는 않음.** 다른 언어 틀은 그대로.
+
 ## 2026-11-17 — M6 배포 (진행 중, 1차: 설치 프로그램)
 **한 일**
 - Inno Setup 6.7.4 설치(공식 GitHub 릴리스 `jrsoftware/issrc` is-6_7_4, 10.6 MB, SHA-256 `A549929319F9120716677C685535CA4671E4B937B5FDC87E2585F32D8EB30E8C`, 서명 유효 Pyrsys B.V.). 사용자 승인 후 `external/innosetup/` 에 사용자별 설치(저장소 제외, 각 PC에서 다시 받는다).

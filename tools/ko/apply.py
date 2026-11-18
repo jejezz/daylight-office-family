@@ -4,6 +4,7 @@ import glob
 import json
 import os
 import re
+import sys
 import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -38,6 +39,60 @@ def patch_new_docx(app, font):
     print(f"new.docx: theme fonts -> {font}")
 
 
+def rewrite_zip(path, edits):
+    """edits: {member name: function(str) -> str}. Rewrites the zip in place; every named member must exist."""
+    zin = zipfile.ZipFile(path)
+    items = [(i, zin.read(i.filename)) for i in zin.infolist()]
+    zin.close()
+    seen = set()
+    with zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED) as zout:
+        for info, data in items:
+            fn = edits.get(info.filename)
+            if fn:
+                data = fn(data.decode('utf-8')).encode('utf-8')
+                seen.add(info.filename)
+            zout.writestr(info, data)
+    missing = set(edits) - seen
+    if missing:
+        raise SystemExit(f"{path}: members not found {sorted(missing)}")
+
+
+def sub_exact(pattern, repl, expect, what):
+    def fn(s):
+        s, n = re.subn(pattern, repl, s)
+        if n != expect:
+            raise SystemExit(f"{what}: expected {expect} replacement(s), got {n} (upstream template changed?)")
+        return s
+    return fn
+
+
+def patch_new_xlsx(app, font):
+    """New workbooks: default cell font and theme fonts (Calibri / Calibri Light) -> font."""
+    path = os.path.join(app, 'converter', 'empty', 'ko-KR', 'new.xlsx')
+    rewrite_zip(path, {
+        'xl/styles.xml': sub_exact(r'<name val="Calibri"/>(<family val="2"/>)<charset val="204"/>',
+                                   lambda m: '<name val="%s"/>%s<charset val="129"/>' % (font, m.group(1)), 1, 'new.xlsx styles'),
+        'xl/theme/theme1.xml': sub_exact(r'(<a:(?:major|minor)Font><a:latin typeface=")Calibri(?: Light)?(" panose="[0-9A-F]+")?/>',
+                                         lambda m: m.group(1) + font + '"/>', 2, 'new.xlsx theme'),
+    })
+    print(f"new.xlsx: default font -> {font}")
+
+
+def patch_new_pptx(app, font):
+    """New presentations: main theme's major/minor latin font (Arial) -> font. Bullet fonts stay Arial."""
+    path = os.path.join(app, 'converter', 'empty', 'ko-KR', 'new.pptx')
+    rewrite_zip(path, {
+        'ppt/theme/theme1.xml': sub_exact(r'(<a:(?:major|minor)Font><a:latin typeface=")Arial(" panose="[0-9A-F]+")?/><a:ea typeface=""/>',
+                                          lambda m: m.group(1) + font + '"/><a:ea typeface="' + font + '"/>', 2, 'new.pptx theme'),
+    })
+    print(f"new.pptx: theme fonts -> {font}")
+
+
+def system_font(spec):
+    """newDocFont is {windows, macos}: the OS system UI font for Korean. Only Windows builds exist for now."""
+    return spec['macos'] if sys.platform == 'darwin' else spec['windows']
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--app', required=True)
@@ -64,7 +119,10 @@ def main():
         out = json.dumps(d, ensure_ascii=False, separators=(',', ':'))
         open(f, 'w', encoding='utf-8', newline='').write(out)
         total += n
-    patch_new_docx(a.app, terms['newDocFont'])
+    font = system_font(terms['newDocFont'])
+    patch_new_docx(a.app, font)
+    patch_new_xlsx(a.app, font)
+    patch_new_pptx(a.app, font)
     print(f"ko: {total} strings adjusted in {len(files)} locale files")
 
 
