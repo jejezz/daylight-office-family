@@ -24,6 +24,10 @@
 
 **남은 것**: Excel 로 다시 열어 경고가 사라졌는지, 매크로가 도는지 확인(미확인). 대조 시험(업스트림 `.bin` 으로 실패하는지) 미완. docx 저장 회귀 확인. `xlsm-save.ps1` 를 키보드·마우스 없이 바꾸기.
 
+## 2026-11-19 — 시작 화면 사이드바 아이콘이 바뀌지 않던 문제
+- 원인: 이 업스트림 시작 화면은 사이드바를 `<svg><use href="#home">` 가 아니라 `<i class="icon tool-icon home">` 와 CSS 스프라이트(`.tool-icon.home{background-position-y:..}`)로 그린다. `patch_rail_icons` 가 바꾼 `<symbol>` 은 화면에 쓰이지 않아 업스트림 선 아이콘이 그대로 보였다(아래에 이웃 스프라이트 조각이 비쳐 보임). 설치된 `index.html` 은 빌드와 같았고 일반 Chrome 에서 심볼은 정상 렌더링돼서, 앱을 `--remote-debugging-port` 로 띄워 사이드바 요소를 조회해 알아냈다.
+- 수정: `tools/theme/apply.py` `patch_rail_icons` 가 `<style id="daylight-rail-icons">` 로 `.tool-menu i.icon.tool-icon.{home,folder,settings,about}` 의 배경을 Icons8 PNG 로 덮어쓴다(`!important`, contain). 심볼 교체는 그대로 둔다. 빌드 후 앱 화면에서 4개가 Icons8 그림으로 나오는 것을 확인(밝은 테마, 한국어). 어두운 테마는 같은 규칙이라 따로 보지 않음.
+
 ## 2026-11-19 — .xlsm 제자리 저장을 기본 꺼짐으로
 - 결정: xlsm 저장은 하지 않는다(저장 때 `calcChain`·프린터 설정·`featurePropertyBag` 가 빠지고 Excel 에서 매크로 동작을 확인하지 못했기 때문에 업무 문서를 덮어쓰는 위험이 있다). `toolsuild.ps1` 4g 단계는 `-XlsmSave` 를 줄 때만 돈다. 기본 빌드에서 xlsm 은 열기·편집만 되고 저장은 업스트림처럼 "다른 이름으로 저장"에서 xlsx 로 변환해 저장한다. `tools/formats`, `tests/xlsm-save.ps1` 은 남겨 둔다(`-XlsmSave` 빌드 전용). 엔진 패치 0004(틀 고정 저장)는 xlsx 에도 해당되므로 그대로다.
 
