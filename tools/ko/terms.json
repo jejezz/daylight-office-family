@@ -12,6 +12,8 @@
   "ExtendedColorDialog.addButtonText": "추가",
   "Toolbar.textTabCollaboration": "검토",
   "Toolbar.capBtnInsTable": "표",
-  "Toolbar.capInsertTable": "표"
+  "Toolbar.capInsertTable": "표",
+  "ViewTab.textRulers": "눈금자",
+  "DocumentHolder.textRulers": "눈금자"
  }
 }

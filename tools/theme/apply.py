@@ -48,6 +48,24 @@ def header_colors(p):
     return dict(p['header']), p.get('headerText', '#FFFFFF')
 
 
+def header_tokens(p):
+    """Everything that colors the title row (per editor type) and what sits on it: background, text/icon color, tab
+    underline, button hover/press. Applied to EVERY built-in theme (the title color ignores the theme)."""
+    H, HT = header_colors(p)
+    t = {
+        'toolbar-header-document': H['document'], 'toolbar-header-spreadsheet': H['spreadsheet'],
+        'toolbar-header-presentation': H['presentation'], 'toolbar-header-pdf': H['pdf'], 'toolbar-header-visio': H['visio'],
+        'text-toolbar-header': HT, 'icon-toolbar-header': HT,
+        'highlight-header-button-hover': 'rgba(255,255,255,0.14)', 'highlight-header-button-pressed': 'rgba(255,255,255,0.26)',
+        # the header icon sheets: light glyph column
+        'button-header-normal-icon-offset-x': '-24px', 'button-header-active-icon-offset-x': '-24px',
+    }
+    for k in ('document', 'spreadsheet', 'presentation', 'pdf', 'visio'):
+        t[f'text-toolbar-header-on-background-{k}'] = HT
+        t[f'highlight-header-tab-underline-{k}'] = HT
+    return t
+
+
 def tokens(p):
     H, HT = header_colors(p)
     HOV, PRS = ('rgba(255,255,255,0.14)', 'rgba(255,255,255,0.26)') if 'header' in p else (rgba(p['hover']), rgba(p['press']))
@@ -161,6 +179,13 @@ def all_tokens(p, app_css_text):
     return t, len(ex)
 
 
+GEOMETRY = re.compile(
+    r'^(layout-|toolbar-(tab|simple|small|height|group|preferred)|celleditor-(height|line-height|cell-name-height|input-border-radius|func-label)|'
+    r'x-|statusbar-height|form-control-size|category-btn|large-btn|line-height-base|input-height-base|dd-button|'
+    r'chb-(size|v-margin|border-radius)|rb-(size|check-mark-size)|slider-(track-height|border-radius|thumb-size|thumb-border-size|thumb-border-radius)|'
+    r'header-(component|input)|content-padding-top|simple-editor|shadow-(toolbar|side-panel))')
+
+
 def make_css(pal, app_css_text):
     dark, light = pal['dark'], pal['light']
     td, nd = all_tokens(dark, app_css_text)
@@ -175,7 +200,17 @@ def make_css(pal, app_css_text):
         f":root .{dark['theme']}{{{decls(td)}}}",
     ]
     sizes = {k: v for k, v in pal.get('sizes', {}).items() if not k.startswith('_')}
-    parts.append(f":root .{light['theme']},:root .{dark['theme']}{{{decls(sizes)}}}")
+    # Size, icon sheets and title-row color apply to every built-in theme, not only the two modern ones.
+    ALL = ':root [class*="theme-"]'
+    DARKS = ':root .theme-night,:root .theme-dark,:root .theme-type-dark,:root .theme-contrast-dark'
+    white = parse_theme_block(app_css_text, ':root .theme-white')
+    sprite = {k: v for k, v in white.items() if k.startswith('sprite-button-')}   # modern (v2) icon sheets for all themes
+    # Layout of the modern themes (padding of the toolbar, tab style, control heights, icon box sizes ...) for every theme,
+    # so the toolbar width and the icon alignment inside the buttons are identical everywhere. Colors stay per theme.
+    geo = {k: v for k, v in white.items() if GEOMETRY.match(k) and not k.startswith('toolbar-header-') and 'opacity' not in k}
+    parts.append(f"{ALL}{{{decls({**geo, **sizes, **sprite, **header_tokens(light)})}}}")
+    parts.append(f"{DARKS}{{{decls({**header_tokens(dark), 'button-small-normal-icon-offset-x': '-24px', 'button-small-active-icon-offset-x': '-24px'})}}}")
+    parts.append(f":root .theme-classic-light,:root .theme-light,:root .theme-gray{{{decls({'button-small-normal-icon-offset-x': '0', 'button-small-active-icon-offset-x': '0'})}}}")
     # Icon sheets are rebuilt larger by tools/icons (style.json scaleUp); the icon elements are zoomed by the same
     # ratio so sheet pixels map 1:1 to screen pixels (no stretching). Vector (svg) icons just scale.
     st = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'icons', 'style.json'), encoding='utf-8'))
@@ -183,9 +218,6 @@ def make_css(pal, app_css_text):
     parts.append(f".toolbar__icon:not(.toolbar__icon-big),.menu__icon,.btn-toolbar:not(.x-huge) .icon:not(.toolbar__icon){{zoom:{zs:.5f}}}")
     parts.append(f".toolbar__icon.toolbar__icon-big,.x-huge .toolbar__icon,.btn-group.icon-top.x-huge .icon:not(svg),.btn.icon-top.x-huge .icon:not(svg),.btn-group.icon-top.x-huge svg.icon,.btn.icon-top.x-huge svg.icon{{zoom:{zb:.5f}}}")
     parts.append(f".options__icon-huge{{zoom:{zh:.5f}}}")
-    if 'header' in light:
-        # the colored title row needs the light glyph column of the header icon sheets (the light theme uses the dark one)
-        parts.append(f":root .{light['theme']}{{--button-header-normal-icon-offset-x:-24px !important;--button-header-active-icon-offset-x:-24px !important}}")
     th = int(pal['layout']['document-title-height'])
     parts.append(f".top-title .cousers-menu{{top:calc({th}px + 28px - 8px) !important}}")
     hid = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hidden.json'), encoding='utf-8'))
@@ -421,6 +453,31 @@ def patch_rail_icons(app):
     return n
 
 
+def patch_themes_js(app):
+    """Give every built-in theme the modern (v2) icon sheets: the editors add the body class theme-icons-cls-mod2 only for
+    themes whose entry has icons.cls, and only that class selects the rebuilt, larger sheets. Each entry must be found."""
+    path = os.path.join(app, APPS_REL, 'common', 'main', 'lib', 'controller', 'Themes.js')
+    t = open(path, encoding='utf-8', errors='ignore', newline='').read()
+    for name in ('theme-light', 'theme-classic-light', 'theme-dark', 'theme-contrast-dark', 'theme-gray'):
+        m = re.search(r"'%s': \{\s*text:[^\n]*\n\s*type: '[a-z]+',\s*source: 'static',?" % name, t)
+        if not m:
+            raise SystemExit(f"Themes.js: entry {name} not found (upstream changed?)")
+        t = t[:m.end()] + "\n                icons: { cls: 'mod2' }," + t[m.end():]
+    open(path, 'w', encoding='utf-8', newline='').write(t)
+
+
+def patch_tab_styler(app):
+    """The selected-tab style (underline 'line' vs filled tab) is forced to the modern 'line' only for the system/modern
+    themes (`isNew`). Make it true for every theme so the tab underline is identical everywhere. Exactly two places."""
+    path = os.path.join(app, APPS_REL, 'common', 'main', 'lib', 'controller', 'TabStyler.js')
+    t = open(path, encoding='utf-8', errors='ignore', newline='').read()
+    pat = re.compile(r"isNew\s*=\s*themeid==='theme-system'\s*\|\|\s*themeid==='theme-white'\s*\|\|\s*themeid==='theme-night'")
+    t, n = pat.subn('isNew = true', t)
+    if n != 2:
+        raise SystemExit(f"TabStyler.js: expected 2 isNew lines, found {n} (upstream changed?)")
+    open(path, 'w', encoding='utf-8', newline='').write(t)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--app', required=True)
@@ -438,6 +495,8 @@ def main():
     nf = scale_font_sizes(a.app, float(pal['sizes']['font-size-base'].rstrip('px')) / 12.0)
     print(f"theme: {nf} hard-coded font sizes in app.css scaled x{float(pal['sizes']['font-size-base'].rstrip('px')) / 12.0:.3f}")
     patch_layout_js(a.app, pal['layout'])
+    patch_themes_js(a.app)
+    patch_tab_styler(a.app)
     install_fonts(a.app)
     for name in (USER_CSS, 'set-ui-font.ps1'):
         shutil.copy2(os.path.join(HERE, '..', '..', 'assets', 'user', name), os.path.join(a.app, name))
