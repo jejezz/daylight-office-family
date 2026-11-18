@@ -93,3 +93,10 @@
 - 알게 된 것: ① 페이지의 `margin_right`/`margin_bottom` 은 너비가 아니라 **페이지 위의 위치(mm)**. ② `COverlay.Clear()` 는 기록된 사각형만 지우므로 표식을 그릴 때 `ClearAll` 과 전체 경계를 표시해야 해제 시 바로 지워진다. ③ `--remote-debugging-port=9333` 으로 시험 앱의 DevTools 에 접속해 엔진을 직접 조회할 수 있다(`tests/lib/cdp.py`).
 - 앱 패치 `web-apps/0002`: 보기 탭 "텍스트 경계" 체크(설정 저장, 시작 시 복원). `0003`: 여백 "표준"을 25.4mm 4면으로(Word 값).
 - 사용자가 화면에서 확인함(동작 양호). 자동 시험 `tests/margin-marks.ps1` 은 아직 끝까지 돌려 보지 못함(사용자가 PC 를 쓰는 중이라 중단) — 다음에 입력 가능할 때 한 번 실행해 확정한다.
+
+## 10. 단계 C 결과 (2026-11-18)
+
+- 엔진 패치 `patches/sdkjs/0002-gridlines.patch`(0001 위의 증분): `CDocument.Draw` 에서 쪽 배경 직후 `private_DrawGridlines` 로 격자를 **쪽 그림에 직접** 그린다(글자·그림·도형이 위). 간격 0.13인치(3.302mm, Word 기본), `rgba(120,120,120,0.3)`. 편집 기능을 지원하는 화면용 그래픽에만(`isSupportEditFeatures`) 그리므로 인쇄·내보내기에는 없다. `api.put/get_ShowGridlines`(켜고 끌 때 `OnRePaintAttack` 으로 전체 쪽 다시 그림).
+- 앱 패치 `web-apps/0004-view-gridlines.patch`: 보기 탭 "눈금자" 아래 "눈금선"(설정 저장·시작 시 복원). 한국어 "눈금선"(`terms.json` `add`).
+- 시행착오: 처음엔 여백 표식처럼 오버레이 캔버스에 그렸으나 글자 위로 덮여 Word 와 달랐다 → 쪽 그림 방식으로 변경. 농도는 Word 캡처와 비교해 조정(최종 밝기 약 214). 사용자가 화면에서 확인함(양호).
+- 소스 줄바꿈 주의: `external/sdkjs` 는 처음 복제 때 CRLF 로 풀린 파일이 있어 패치 생성 때 전체 파일 diff 가 났다. `git checkout -f` + `git reset --hard` 로 LF 로 맞춘 뒤 생성해야 한다(저장소 blob 은 LF).
