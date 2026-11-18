@@ -51,3 +51,4 @@ foreach ($e in $check) {
 }
 if ($bad.Count -gt 0) { $bad | ForEach-Object { Write-Host "FAIL: $_" }; exit 1 }
 Write-Host ("OK: {0} file(s) verified ({1})" -f @($check).Count, $(if ($Full) { 'full' } else { 'key files' }))
+exit 0   # robocopy leaves exit code 1 (= files copied) in $LASTEXITCODE; callers must see success as 0

@@ -21,7 +21,8 @@
 
 ## 빌드·시험
 ```
-tools\prepare-upstream.ps1        # 한 번: 공식 설치본의 설치 폴더를 external/ 에 복사하고 해시 검증
+tools\bootstrap.ps1              # clone 직후 한 번: git/python/Pillow 확인 + 공식 설치본을 받아 external/upstream-* 준비 + external/sdkjs 복제 (-CheckOnly, -WithInstaller, -Build)
+tools\prepare-upstream.ps1        # (bootstrap 이 부름) 공식 설치본의 설치 폴더를 external/ 에 복사하고 해시 검증
 tools\build.ps1                   # external 의 업스트림 + patches + overlay + 브랜드 단계 → build\app (약 30 초)
 tests\smoke.ps1                   # build\app 을 실행해 문서를 열고 창 제목·프로세스·스크린샷 확인
 tests\brand.ps1                   # 아이콘·설정/데이터 위치 분리·정적 문자열 확인, 시작/정보 화면 스크린샷

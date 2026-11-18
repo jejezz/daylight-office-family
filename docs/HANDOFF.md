@@ -18,23 +18,19 @@
    ```
    git clone https://github.com/jejezz/daylight-office-family.git
    ```
-2. **업스트림 설치**: ONLYOFFICE Desktop Editors **10.0.0.169** 공식 설치 파일을 설치한다. 파일 이름·크기·SHA-256 은 `upstream.txt`. 다운로드 주소는 "항상 최신"이라 다른 버전이 올 수 있으므로 **보관해 둔 설치 파일을 쓰고 SHA-256 을 확인**한다(`Get-FileHash DesktopEditors_x64.exe`). 설치본의 자동 업데이트는 켜지 않는다.
-3. 업스트림 복사(저장소 루트에서)
+2. **준비 스크립트 한 번** (저장소 루트에서)
    ```
-   powershell -ExecutionPolicy Bypass -File tools\prepare-upstream.ps1
+   powershell -ExecutionPolicy Bypass -File tools\bootstrap.ps1
    ```
-   `external\upstream-10.0.0.169` 가 생긴다. `-Full` 은 전체 해시 검사(약 150 초, `unins000.dat` 하나만 달라도 정상).
-4. 편집 엔진 소스(엔진 패치 빌드에 필요)
-   ```
-   git clone --depth 1 --branch v10.0.0.169 -c core.autocrlf=false https://github.com/ONLYOFFICE/sdkjs external/sdkjs
-   ```
-   선택: 화면 코드 읽기용 `web-apps`, 네이티브 원인 조사용 `desktop-sdk`·`desktop-apps` 도 같은 태그로 `external/` 에 얕게 받을 수 있다(빌드는 쓰지 않음).
-5. 선택: 설치 파일을 만들려면 Inno Setup 6.7.4 를 `external\innosetup\` 에 설치(`PROGRESS.md` M6 항목에 출처·해시).
-6. 선택: 개발 PC 기본값(UI 언어 등)
+   git·Python·Pillow/numpy 를 확인하고(없는 파이썬 패키지는 pip 로 설치), 공식 설치 파일(10.0.0.169, `upstream.txt`)을 내려받아 크기·SHA-256·서명을 확인한 뒤 `external\` 안에 조용히 설치 → `external\upstream-10.0.0.169` 로 복사(`prepare-upstream.ps1`) → 임시 설치 제거, 그리고 `external\sdkjs`(태그 v10.0.0.169)를 얕게 복제한다. 이미 된 단계는 건너뛰므로 다시 돌려도 된다. 이 PC 에 같은 버전이 `C:\Program Files\ONLYOFFICE\DesktopEditors` 로 설치돼 있으면 내려받지 않고 그것을 복사한다(`-IgnoreInstalled` 로 끔).
+   - 다운로드 주소는 "항상 최신"이라 다른 버전이 오면 해시 불일치로 멈춘다. 그때는 보관해 둔 설치 파일로 `-Installer <경로>`.
+   - `-CheckOnly`: 아무것도 바꾸지 않고 빠진 것만 보고. `-WithInstaller`: Inno Setup 6.7.4 를 `external\innosetup\` 에(설치 파일 만들 때만). `-Build`: 끝나고 `build.ps1` 까지. `-FullVerify`: 업스트림 전체 해시 검사(약 150 초, `unins000.dat` 하나만 달라도 정상).
+   - 수동으로 하려면: 공식 설치 파일 설치 → `tools\prepare-upstream.ps1` → `git clone --depth 1 --branch v10.0.0.169 -c core.autocrlf=false https://github.com/ONLYOFFICE/sdkjs external/sdkjs`. 화면 코드 읽기용 `web-apps` 등은 선택(빌드는 쓰지 않음).
+3. 선택: 개발 PC 기본값(UI 언어 등)
    ```
    powershell -ExecutionPolicy Bypass -File tools\dev\set-user-defaults.ps1
    ```
-7. 빌드
+4. 빌드
    ```
    powershell -ExecutionPolicy Bypass -File tools\build.ps1
    ```

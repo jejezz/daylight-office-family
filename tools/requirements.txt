@@ -1,0 +1,4 @@
+# Python packages used by the build steps (tools\brand, tools\icons, tools\theme) and by some tests.
+# tools\bootstrap.ps1 installs these with pip when they are missing.
+Pillow>=10
+numpy>=1.26

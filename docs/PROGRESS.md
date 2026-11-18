@@ -2,6 +2,12 @@
 
 > 다른 PC 에서 이어 할 때는 `docs/HANDOFF.md`(준비 순서, 시험 주의, 남은 확인).
 
+## 2026-11-18 — 준비 스크립트 `tools/bootstrap.ps1`
+- clone 직후에는 `external/`(업스트림 설치 트리, sdkjs)이 없어 `tools\build.ps1` 이 반드시 실패했다. `tools\bootstrap.ps1` 이 이를 한 번에 준비한다(여러 번 돌려도 안전, 이미 된 단계는 건너뜀).
+- 하는 일: ① git·python(3.9+)·Pillow/numpy 확인(파이썬 패키지는 `tools/requirements.txt` 로 pip 설치), 디스크 여유 ② 업스트림 트리: 같은 버전이 Program Files 에 설치돼 있으면 그것을, 아니면 `-Installer` 로 준 파일이나 `upstream.txt` 주소에서 받은 설치 파일을 크기·SHA-256·서명 확인 후 `external\_upstream-install` 에 조용히 설치(`/VERYSILENT /CURRENTUSER`) → `prepare-upstream.ps1` → 제거 ③ `external/sdkjs` 를 태그 v10.0.0.169 로 얕게 복제 ④ `-WithInstaller` 면 Inno Setup 6.7.4(해시 확인). `-CheckOnly`(변경 없이 점검), `-Build`(끝나고 build.ps1), `-IgnoreInstalled`, `-FullVerify`.
+- `prepare-upstream.ps1` 은 끝에 `exit 0` 을 둔다(robocopy 종료 코드 1 이 남아 호출한 쪽이 실패로 오인했음).
+- 삭제는 `external\` 안의 실제 폴더에만 한다(junction 을 따라가지 않음, 2026-11-18 사고의 교훈).
+
 ## 2026-11-18 — 틀 고정 저장 오류(엔진 패치 0004)와 엔진 V8 스냅숏
 **증상**: 업무 xlsm 을 고쳐 저장한 뒤 Excel 로 열면 "내용에 문제가 있습니다 … 복구된 레코드: /xl/worksheets/sheet16.xml 부분의 보기". 그 시트("자재현황")의 틀 고정이 `ySplit="-1"` 로 저장됐다(원본 `topLeftCell="A5"` + `ySplit="3"`). 같은 시트들에서 분할 값이 하나씩 어긋난 것도 있었다(예: `xSplit` 3→2).
 
