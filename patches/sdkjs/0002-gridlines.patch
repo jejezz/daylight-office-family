@@ -1,0 +1,75 @@
+diff --git a/word/Editor/Document.js b/word/Editor/Document.js
+index 91a9135..9347579 100644
+--- a/word/Editor/Document.js
++++ b/word/Editor/Document.js
+@@ -5387,6 +5387,26 @@ CDocument.prototype.DrawPage                                 = function(nPageInd
+ {
+     this.Draw(nPageIndex, pGraphics);
+ };
++/**
++ * Daylight: grid lines over the whole page, spaced 0.13 inch (3.3 mm) like MS Word's default grid.
++ * Drawn into the cached page picture, so changing the setting needs a repaint of all pages.
++ */
++CDocument.prototype.private_DrawGridlines = function(pGraphics, nPageIndex)
++{
++	var Page = this.Pages[nPageIndex];
++	if (!Page || !pGraphics.m_dDpiX)
++		return;
++
++	var W    = Page.Width, H = Page.Height;
++	var step = 3.302;
++	var pen  = 25.4 / pGraphics.m_dDpiX; // one pixel, in mm
++
++	pGraphics.p_color(120, 120, 120, 77);
++	for (var x = step; x < W; x += step)
++		pGraphics.drawVerLine(c_oAscLineDrawingRule.Center, x, 0, H, pen);
++	for (var y = step; y < H; y += step)
++		pGraphics.drawHorLine(c_oAscLineDrawingRule.Center, y, 0, W, pen);
++};
+ CDocument.prototype.CanDrawPage = function(nPageAbs)
+ {
+ 	if (null !== this.FullRecalc.Id && nPageAbs >= this.FullRecalc.PageIndex - 1)
+@@ -5412,6 +5432,10 @@ CDocument.prototype.Draw                                     = function(nPageInd
+ 
+ 	this.Background.draw(pGraphics, SectPr, this.GetTheme(), this.GetColorMap());
+ 
++	// Daylight: grid lines (screen only: print and export graphics do not support edit features)
++	if (pGraphics.isSupportEditFeatures() && this.Api.ShowGridlines)
++		this.private_DrawGridlines(pGraphics, nPageIndex);
++
+ 	// Рисуем границы вокруг страницы (если границы надо рисовать под текстом)
+ 	if (section_borders_ZOrderBack === SectPr.Get_Borders_ZOrder())
+ 		this.DrawPageBorders(pGraphics, SectPr, nPageIndex);
+diff --git a/word/api.js b/word/api.js
+index 93f3ce8..b6df2be 100644
+--- a/word/api.js
++++ b/word/api.js
+@@ -4656,6 +4656,19 @@ background-repeat: no-repeat;\
+ 		return this.ShowSmartGuides;
+ 	};
+ 
++	// Daylight: grid lines under the page content, screen only (drawn into the page picture: repaint every page)
++	asc_docs_api.prototype.put_ShowGridlines = function(isShow)
++	{
++		this.ShowGridlines = !!isShow;
++		if (this.WordControl)
++			this.WordControl.OnRePaintAttack();
++		return this.ShowGridlines;
++	};
++	asc_docs_api.prototype.get_ShowGridlines = function()
++	{
++		return !!this.ShowGridlines;
++	};
++
+ 	// Daylight: margin boundary marks (corner marks at the text area), screen only
+ 	asc_docs_api.prototype.put_ShowMarginBoundaries = function(isShow)
+ 	{
+@@ -15291,6 +15304,8 @@ background-repeat: no-repeat;\
+ 	asc_docs_api.prototype['get_ShowSnapLines']                         = asc_docs_api.prototype.get_ShowSnapLines;
+ 	asc_docs_api.prototype['put_ShowSmartGuides']                       = asc_docs_api.prototype.put_ShowSmartGuides;
+ 	asc_docs_api.prototype['get_ShowSmartGuides']                       = asc_docs_api.prototype.get_ShowSmartGuides;
++	asc_docs_api.prototype['put_ShowGridlines']                         = asc_docs_api.prototype.put_ShowGridlines;
++	asc_docs_api.prototype['get_ShowGridlines']                         = asc_docs_api.prototype.get_ShowGridlines;
+ 	asc_docs_api.prototype['put_ShowMarginBoundaries']                  = asc_docs_api.prototype.put_ShowMarginBoundaries;
+ 	asc_docs_api.prototype['get_ShowMarginBoundaries']                  = asc_docs_api.prototype.get_ShowMarginBoundaries;
+ 	asc_docs_api.prototype['put_ShowParaMarks']                         = asc_docs_api.prototype.put_ShowParaMarks;

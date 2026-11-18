@@ -1,0 +1,203 @@
+diff --git a/editors/web-apps/apps/documenteditor/main/app/controller/Navigation.js b/editors/web-apps/apps/documenteditor/main/app/controller/Navigation.js
+index 06742bf..7c4bc7d 100644
+--- a/editors/web-apps/apps/documenteditor/main/app/controller/Navigation.js
++++ b/editors/web-apps/apps/documenteditor/main/app/controller/Navigation.js
+@@ -57,6 +57,7 @@ define([
+             this.addListeners({
+                 'Navigation': {
+                     'show': function() {
++                        me._pg && me.showNavTab(me._pg.tab, true);
+                         if (!this.canUseViwerNavigation) {
+                             me.api.asc_ShowDocumentOutline();
+                         } else {
+@@ -97,6 +98,11 @@ define([
+             this.api.asc_registerCallback('asc_onDocumentOutlineUpdateRemove', _.bind(this.updateNavigation, this));
+ 
+             this.api.asc_registerCallback('asc_onViewerBookmarksUpdate', _.bind(this.updateViewerNavigation, this));
++
++            // Daylight: page thumbnails follow the page count, the edits and the current page
++            this.api.asc_registerCallback('asc_onCountPages', _.bind(function () { this.schedulePages(300, true); }, this));
++            this.api.asc_registerCallback('asc_onEndCalculate', _.bind(function () { this.schedulePages(700, false); }, this));
++            this.api.asc_registerCallback('asc_onCurrentPage', _.bind(this.onThumbCurrentPage, this));
+             return this;
+         },
+ 
+@@ -121,13 +127,125 @@ define([
+             panelNavigation.btnSettingsMenu.items[4].menu.on('item:click', _.bind(this.onMenuFontSizeClick, this));
+             panelNavigation.btnClose.on('click', _.bind(this.onClickClosePanel, this));
+ 
++            var me = this;
++            this.initPages(panelNavigation);
++
+             var viewport = this.getApplication().getController('Viewport').getView('Viewport');
+             viewport.hlayout.on('layout:resizedrag',  function () {
++                me.schedulePages(150, false);
+                 if (panelNavigation.viewNavigationList && panelNavigation.viewNavigationList.scroller)
+                     panelNavigation.viewNavigationList.scroller.update({alwaysVisibleY: true});
+             });
+         },
+ 
++        // ---- Daylight: page thumbnails ("Pages" tab of the navigation panel) ----
++        initPages: function (panel) {
++            var me = this;
++            this._pg = {tab: Common.localStorage.getItem('de-navigation-tab') === 'pages' ? 'pages' : 'headings',
++                items: [], width: 0, current: -1, timer: 0, renderTimer: 0, dirtyAll: true, rebuild: true,
++                $box: $('#navigation-pages', panel.$el), $in: $('#navigation-pages .dl-pages-in', panel.$el), $list: $('#navigation-list', panel.$el)};
++            panel.$el.on('click', '.dl-nav-tab', function (e) { me.showNavTab($(e.currentTarget).attr('data-tab')); });
++            // the editor swallows plain wheel events outside its own scrollers: use the same scroller as the headings list
++            this._pg.scroller = new Common.UI.Scroller({el: this._pg.$box, suppressScrollX: true, useKeyboard: false, minScrollbarLength: 25, alwaysVisibleY: true});
++            this._pg.$box.on('click', '.dl-page', function (e) {
++                var i = parseInt($(e.currentTarget).attr('data-index'), 10);
++                me.api && me.api.goToPage(i);
++            });
++            this._pg.$box.on('scroll', function () { me.schedulePages(60, false, true); });
++            this.showNavTab(this._pg.tab, true);
++        },
++
++        showNavTab: function (tab, noSave) {
++            var pg = this._pg;
++            if (!pg) return;
++            pg.tab = (tab === 'pages') ? 'pages' : 'headings';
++            if (!noSave) Common.localStorage.setItem('de-navigation-tab', pg.tab);
++            $('.dl-nav-tab', this.panelNavigation.$el).each(function () {
++                $(this).toggleClass('active', $(this).attr('data-tab') === pg.tab);
++            });
++            pg.$list.toggle(pg.tab === 'headings');
++            pg.$box.toggle(pg.tab === 'pages');
++            $('#navigation-btn-settings', this.panelNavigation.$el).toggle(pg.tab === 'headings');
++            if (pg.tab === 'pages') this.schedulePages(50, true);
++        },
++
++        // debounced: rebuild = the page count or width may have changed; scrolling only draws what became visible
++        schedulePages: function (delay, rebuild, scrollOnly) {
++            var pg = this._pg;
++            if (!pg || pg.tab !== 'pages' || !this.api) return;
++            if (rebuild) pg.rebuild = true;
++            else if (!scrollOnly) pg.dirtyAll = true;
++            if (pg.timer) clearTimeout(pg.timer);
++            var me = this;
++            pg.timer = setTimeout(function () { pg.timer = 0; me.layoutPages(); }, delay);
++        },
++
++        layoutPages: function () {
++            var pg = this._pg, me = this;
++            if (!pg || pg.tab !== 'pages' || !this.api || !pg.$box.is(':visible')) return;
++            var count = this.api.getCountPages() || 0;
++            var cssW = Math.max(60, Math.min(190, pg.$box[0].clientWidth - 48));
++            if (pg.rebuild || count !== pg.items.length || cssW !== pg.width) {
++                pg.rebuild = false;
++                pg.width = cssW;
++                var ratio = pg.ratio || 1.414;
++                var html = [];
++                for (var i = 0; i < count; i++) {
++                    html.push('<div class="dl-page" data-index="' + i + '"><div class="dl-thumb" style="width:' + cssW + 'px;height:' + Math.round(cssW * ratio) +
++                        'px;"></div><span class="dl-num">' + (i + 1) + '</span></div>');
++                }
++                pg.$in.html(html.join(''));
++                pg.items = pg.$in.children('.dl-page').toArray().map(function (el) { return {el: el, done: false}; });
++                pg.current = -1;
++                var cur = this.api.getCurrentPage();
++                if (cur >= 0) this.onThumbCurrentPage(cur);
++            } else if (pg.dirtyAll) {
++                pg.items.forEach(function (it) { it.done = false; });
++            }
++            pg.dirtyAll = false;
++            pg.scroller && pg.scroller.update();
++            if (!pg.renderTimer) pg.renderTimer = setTimeout(function () { pg.renderTimer = 0; me.renderNextThumb(); }, 0);
++        },
++
++        // draws one visible, stale thumbnail per turn so typing and scrolling stay responsive
++        renderNextThumb: function () {
++            var pg = this._pg, me = this;
++            if (!pg || pg.tab !== 'pages' || !this.api || !pg.$box.is(':visible')) return;
++            var box = pg.$box[0].getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
++            for (var i = 0; i < pg.items.length; i++) {
++                var it = pg.items[i];
++                if (it.done) continue;
++                var r = it.el.getBoundingClientRect();
++                if (r.bottom < box.top - 200 || r.top > box.bottom + 200) continue;   // not (nearly) visible
++                var canvas = this.api.asc_getPageThumbnail(i, Math.round(pg.width * dpr));
++                if (canvas) {
++                    if (!pg.ratio) pg.ratio = canvas.height / canvas.width;
++                    canvas.className = 'dl-thumb';
++                    canvas.style.width = pg.width + 'px';
++                    canvas.style.height = Math.round(pg.width * canvas.height / canvas.width) + 'px';
++                    $(it.el).children('.dl-thumb').replaceWith(canvas);
++                    pg.scroller && pg.scroller.update();
++                }
++                it.done = true;   // when the page cannot be drawn now, the next recalculation event draws it
++                pg.renderTimer = setTimeout(function () { pg.renderTimer = 0; me.renderNextThumb(); }, 8);
++                return;
++            }
++        },
++
++        onThumbCurrentPage: function (n) {
++            var pg = this._pg;
++            if (!pg || n === pg.current) return;
++            pg.current = n;
++            pg.$in.children('.dl-page').removeClass('current');
++            var it = pg.items[n];
++            if (!it) return;
++            $(it.el).addClass('current');
++            if (pg.tab === 'pages' && pg.$box.is(':visible')) {
++                var box = pg.$box[0].getBoundingClientRect(), r = it.el.getBoundingClientRect();
++                if (r.top < box.top || r.bottom > box.bottom) it.el.scrollIntoView({block: 'nearest'});
++            }
++        },
++
+         updateNavigation: function() {
+             if (!this._navigationObject)
+                 this._navigationObject = this.api.asc_GetDocumentOutlineManager();
+diff --git a/editors/web-apps/apps/documenteditor/main/app/view/Navigation.js b/editors/web-apps/apps/documenteditor/main/app/view/Navigation.js
+index 2ef5430..4cf8159 100644
+--- a/editors/web-apps/apps/documenteditor/main/app/view/Navigation.js
++++ b/editors/web-apps/apps/documenteditor/main/app/view/Navigation.js
+@@ -51,12 +51,16 @@ define([
+         template: _.template([
+             '<div id="navigation-box" class="layout-ct vbox">',
+             '<div id="navigation-header" className="">',
+-                '<label role="heading"><%= scope.strNavigate%></label>',
++                '<span class="dl-nav-tabs">',
++                    '<label role="heading" class="dl-nav-tab active" data-tab="headings"><%= scope.strNavigate%></label>',
++                    '<label role="heading" class="dl-nav-tab" data-tab="pages"><%= scope.txtPages%></label>',
++                '</span>',
+                 '<div id="navigation-btn-close" class="float-right margin-left-4"></div>',
+                 '<div id="navigation-btn-settings" class="float-right"></div>',
+             '</div>',
+                 '<div id="navigation-list" class="">',
+                 '</div>',
++                '<div id="navigation-pages" class="dl-pages" style="display: none;"><div class="dl-pages-in"></div></div>',
+             '</div>'
+         ].join('')),
+ 
+@@ -73,6 +77,22 @@ define([
+             if(!fontSizeClass) fontSizeClass = 'medium';
+             this.$el = $(el);
+ 
++            // Daylight: styles of the "Pages" (thumbnails) tab
++            if (!$('#dl-navigation-pages-style').length) {
++                $('<style id="dl-navigation-pages-style"></style>').text([
++                    '#navigation-header .dl-nav-tabs { display: inline-block; white-space: nowrap; }',
++                    '#navigation-header .dl-nav-tab { cursor: pointer; margin-right: 16px; opacity: 0.6; }',
++                    '#navigation-header .dl-nav-tab.active { opacity: 1; text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 2px; }',
++                    '#navigation-pages { position: absolute; left: 0; right: 0; top: 45px; bottom: 0; overflow: hidden; }',
++                    '#navigation-pages .dl-pages-in { padding: 14px 0 6px; }',
++                    '#navigation-pages .dl-page { display: flex; flex-direction: column; align-items: center; margin: 0 0 14px; cursor: pointer; }',
++                    '#navigation-pages .dl-page .dl-thumb { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.35); outline: 2px solid transparent; outline-offset: 1px; }',
++                    '#navigation-pages .dl-page:hover .dl-thumb { outline-color: rgba(128,128,128,0.6); }',
++                    '#navigation-pages .dl-page.current .dl-thumb { outline-color: var(--background-accent-button, #2C6BE0); }',
++                    '#navigation-pages .dl-page .dl-num { margin-top: 5px; font-size: 12px; opacity: 0.75; }'
++                ].join('\n')).appendTo(document.head);
++            }
++
+             this.btnClose = new Common.UI.Button({
+                 parentEl: $('#navigation-btn-close', this.$el),
+                 cls: 'btn-toolbar',
+@@ -281,6 +301,7 @@ define([
+         txtEmptyItem: 'Empty Heading',
+         txtEmptyViewer: 'There are no headings in the document.',
+         strNavigate: "Headings",
++        txtPages: "Pages",
+         txtWrapHeadings: "Wrap long headings",
+         txtFontSize: "Font size",
+         txtSmall: "Small",

@@ -1,0 +1,134 @@
+diff --git a/word/Drawing/DrawingDocument.js b/word/Drawing/DrawingDocument.js
+index 40f7f35..965790d 100644
+--- a/word/Drawing/DrawingDocument.js
++++ b/word/Drawing/DrawingDocument.js
+@@ -5260,6 +5260,65 @@ function CDrawingDocument()
+ 		}
+ 	};
+ 
++	// Daylight: corner marks at the four corners of the text area (page margins), arms pointing out into the margin.
++	// Screen only (the overlay canvas); printing and export use other render paths.
++	this.DrawMarginBoundaries = function (overlay)
++	{
++		var ctx = overlay.m_oContext;
++		if (!ctx || this.m_lDrawingFirst < 0 || this.m_lDrawingEnd < 0)
++			return;
++
++		var retina = function (v) { return AscCommon.AscBrowser.convertToRetinaValue(v, true); };
++		var arm = retina(14);
++
++		// COverlay.Clear() only wipes the rectangle it knows was drawn; tell it the whole canvas is dirty so that
++		// switching the marks off (or scrolling) removes them at the next overlay update
++		var cv = overlay.m_oControl.HtmlElement;
++		overlay.ClearAll = true;
++		overlay.min_x = 0; overlay.min_y = 0; overlay.max_x = cv.width; overlay.max_y = cv.height;
++
++		ctx.save();
++		ctx.globalAlpha = 1.0;
++		ctx.lineWidth = Math.max(1, retina(1));
++		ctx.strokeStyle = "rgba(120,130,150,0.9)";
++		ctx.beginPath();
++		for (var i = this.m_lDrawingFirst; i <= this.m_lDrawingEnd; i++)
++		{
++			var page = this.m_arrPages[i];
++			if (!page || !page.drawingPage || !(page.width_mm > 0) || !(page.height_mm > 0))
++				continue;
++
++			var dp = page.drawingPage;
++			var left = retina(dp.left), top = retina(dp.top);
++			var kx = (retina(dp.right) - left) / page.width_mm;
++			var ky = (retina(dp.bottom) - top) / page.height_mm;
++
++			// Margins.Right / Margins.Bottom are positions on the page (mm from the left/top edge), not widths
++			// text area in canvas pixels, snapped to half pixels so 1px lines stay sharp
++			var x1 = Math.round(left + page.margin_left * kx) + 0.5;
++			var x2 = Math.round(left + page.margin_right * kx) + 0.5;
++			var y1 = Math.round(top + page.margin_top * ky) + 0.5;
++			var y2 = Math.round(top + page.margin_bottom * ky) + 0.5;
++			if (!(x2 > x1) || !(y2 > y1))
++				continue;
++
++			// arm lengths limited by the room that is left in the margin
++			var al = Math.min(arm, x1 - left), ar = Math.min(arm, left + page.width_mm * kx - x2);
++			var at = Math.min(arm, y1 - top),  ab = Math.min(arm, top + page.height_mm * ky - y2);
++
++			// top-left
++			ctx.moveTo(x1 - al, y1); ctx.lineTo(x1, y1); ctx.lineTo(x1, y1 - at);
++			// top-right
++			ctx.moveTo(x2 + ar, y1); ctx.lineTo(x2, y1); ctx.lineTo(x2, y1 - at);
++			// bottom-left
++			ctx.moveTo(x1 - al, y2); ctx.lineTo(x1, y2); ctx.lineTo(x1, y2 + ab);
++			// bottom-right
++			ctx.moveTo(x2 + ar, y2); ctx.lineTo(x2, y2); ctx.lineTo(x2, y2 + ab);
++		}
++		ctx.stroke();
++		ctx.restore();
++	};
++
+ 	this.DrawTableTrack = function (overlay)
+ 	{
+ 		if (null == this.TableOutlineDr.TableOutline)
+diff --git a/word/Drawing/HtmlPage.js b/word/Drawing/HtmlPage.js
+index 5571aaf..050da7e 100644
+--- a/word/Drawing/HtmlPage.js
++++ b/word/Drawing/HtmlPage.js
+@@ -486,7 +486,7 @@ function CEditorPage(api)
+ 	this.CheckUnShowOverlay = function()
+ 	{
+ 		var drDoc = this.m_oDrawingDocument;
+-		if (!drDoc.m_bIsSearching && !drDoc.m_bIsSelection && !this.MobileTouchManager)
++		if (!drDoc.m_bIsSearching && !drDoc.m_bIsSelection && !this.MobileTouchManager && !this.m_oApi.ShowMarginBoundaries)
+ 		{
+ 			this.UnShowOverlay();
+ 			return false;
+@@ -3620,6 +3620,13 @@ function CEditorPage(api)
+ 
+ 			ctx.globalAlpha = 1.0;
+ 
++			// Daylight: margin boundary marks
++			if (this.m_oApi.ShowMarginBoundaries)
++			{
++				this.ShowOverlay();
++				drDoc.DrawMarginBoundaries(overlay);
++			}
++
+ 			// drawShapes (+ track)
+ 			if (this.m_oLogicDocument.DrawingObjects)
+ 			{
+diff --git a/word/api.js b/word/api.js
+index 3cdfdc9..93f3ce8 100644
+--- a/word/api.js
++++ b/word/api.js
+@@ -4656,6 +4656,23 @@ background-repeat: no-repeat;\
+ 		return this.ShowSmartGuides;
+ 	};
+ 
++	// Daylight: margin boundary marks (corner marks at the text area), screen only
++	asc_docs_api.prototype.put_ShowMarginBoundaries = function(isShow)
++	{
++		this.ShowMarginBoundaries = !!isShow;
++		if (this.WordControl)
++		{
++			if (this.ShowMarginBoundaries)
++				this.WordControl.ShowOverlay();
++			this.WordControl.OnUpdateOverlay();
++		}
++		return this.ShowMarginBoundaries;
++	};
++	asc_docs_api.prototype.get_ShowMarginBoundaries = function()
++	{
++		return !!this.ShowMarginBoundaries;
++	};
++
+ 	asc_docs_api.prototype.put_ShowParaMarks      = function(isShow)
+ 	{
+ 		/*
+@@ -15274,6 +15291,8 @@ background-repeat: no-repeat;\
+ 	asc_docs_api.prototype['get_ShowSnapLines']                         = asc_docs_api.prototype.get_ShowSnapLines;
+ 	asc_docs_api.prototype['put_ShowSmartGuides']                       = asc_docs_api.prototype.put_ShowSmartGuides;
+ 	asc_docs_api.prototype['get_ShowSmartGuides']                       = asc_docs_api.prototype.get_ShowSmartGuides;
++	asc_docs_api.prototype['put_ShowMarginBoundaries']                  = asc_docs_api.prototype.put_ShowMarginBoundaries;
++	asc_docs_api.prototype['get_ShowMarginBoundaries']                  = asc_docs_api.prototype.get_ShowMarginBoundaries;
+ 	asc_docs_api.prototype['put_ShowParaMarks']                         = asc_docs_api.prototype.put_ShowParaMarks;
+ 	asc_docs_api.prototype['get_ShowParaMarks']                         = asc_docs_api.prototype.get_ShowParaMarks;
+ 	asc_docs_api.prototype['put_ShowTableEmptyLine']                    = asc_docs_api.prototype.put_ShowTableEmptyLine;
