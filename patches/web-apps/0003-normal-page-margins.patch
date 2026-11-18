@@ -1,0 +1,13 @@
+diff --git a/editors/web-apps/apps/documenteditor/main/app/view/Toolbar.js b/editors/web-apps/apps/documenteditor/main/app/view/Toolbar.js
+index 9197278..766b2a3 100644
+--- a/editors/web-apps/apps/documenteditor/main/app/view/Toolbar.js
++++ b/editors/web-apps/apps/documenteditor/main/app/view/Toolbar.js
+@@ -1318,7 +1318,7 @@ define([
+                                     checkable: true,
+                                     template: pageMarginsTemplate,
+                                     toggleGroup: 'menuPageMargins',
+-                                    value: (/^(ca|us)$/i.test(Common.Utils.InternalSettings.get("de-config-region"))) ? [25.4, 25.4, 25.4, 25.4] : [20, 30, 20, 15]
++                                    value: [25.4, 25.4, 25.4, 25.4] // Daylight: the same in every region (upstream: top 20 / left 30 / bottom 20 / right 15 outside US and Canada)
+                                 },
+                                 {
+                                     caption: this.textMarginsNarrow,

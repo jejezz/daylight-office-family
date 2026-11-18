@@ -1,0 +1,96 @@
+diff --git a/editors/web-apps/apps/documenteditor/main/app/controller/Main.js b/editors/web-apps/apps/documenteditor/main/app/controller/Main.js
+index 7ee08c1..72664b7 100644
+--- a/editors/web-apps/apps/documenteditor/main/app/controller/Main.js
++++ b/editors/web-apps/apps/documenteditor/main/app/controller/Main.js
+@@ -2123,6 +2123,7 @@ define([
+                     value = Common.localStorage.itemExists('de-hidden-rulers') ? Common.localStorage.getBool('de-hidden-rulers') : (this.appOptions.customization && !!this.appOptions.customization.hideRulers);
+                     Common.Utils.InternalSettings.set("de-hidden-rulers", value);
+                     me.api.asc_SetViewRulers(!value);
++                    me.api.put_ShowGridlines && me.api.put_ShowGridlines(Common.localStorage.getBool('de-show-gridlines', false));
+                     me.api.put_ShowMarginBoundaries && me.api.put_ShowMarginBoundaries(Common.localStorage.getBool('de-show-margin-marks', false));
+ 
+                     me.api.asc_registerCallback('asc_onDocumentCanSaveChanged',  _.bind(me.onDocumentCanSaveChanged, me));
+diff --git a/editors/web-apps/apps/documenteditor/main/app/controller/ViewTab.js b/editors/web-apps/apps/documenteditor/main/app/controller/ViewTab.js
+index 9e48d9d..91f5839 100644
+--- a/editors/web-apps/apps/documenteditor/main/app/controller/ViewTab.js
++++ b/editors/web-apps/apps/documenteditor/main/app/controller/ViewTab.js
+@@ -95,6 +95,7 @@ define([
+                     'zoom:100': _.bind(this.onZoomTo100, this),
+                     'rulers:change': _.bind(this.onChangeRulers, this),
+                     'marginmarks:change': _.bind(this.onChangeMarginMarks, this),
++                    'gridlines:change': _.bind(this.onChangeGridlines, this),
+                     'darkmode:change': _.bind(this.onChangeDarkMode, this),
+                     'macros:click':  _.bind(this.onClickMacros, this),
+                     'macros:record':  _.bind(this.onClickMacrosRec, this),
+@@ -390,6 +391,12 @@ define([
+             Common.NotificationCenter.trigger('edit:complete', this.view);
+         },
+ 
++        onChangeGridlines: function (btn, checked) {
++            Common.localStorage.setBool('de-show-gridlines', checked);
++            this.api.put_ShowGridlines(checked);
++            Common.NotificationCenter.trigger('edit:complete', this.view);
++        },
++
+         onChangeMarginMarks: function (btn, checked) {
+             Common.localStorage.setBool('de-show-margin-marks', checked);
+             this.api.put_ShowMarginBoundaries(checked);
+diff --git a/editors/web-apps/apps/documenteditor/main/app/view/ViewTab.js b/editors/web-apps/apps/documenteditor/main/app/view/ViewTab.js
+index 612ca5a..de18f08 100644
+--- a/editors/web-apps/apps/documenteditor/main/app/view/ViewTab.js
++++ b/editors/web-apps/apps/documenteditor/main/app/view/ViewTab.js
+@@ -112,7 +112,9 @@ define([
+                 '<div class="elset">' +
+                     '<span class="btn-slot text" id="slot-chk-rulers"></span>' +
+                 '</div>' +
+-                '<div class="elset"></div>' +
++                '<div class="elset">' +
++                    '<span class="btn-slot text" id="slot-chk-gridlines"></span>' +
++                '</div>' +
+             '</div>' +
+             '<div class="separator long separator-margins"></div>' +
+             '<div class="group small">' +
+@@ -162,6 +164,9 @@ define([
+                 me.chRulers.on('change', _.bind(function (checkbox, state) {
+                     me.fireEvent('rulers:change', [me.chRulers, state === 'checked']);
+                 }, me));
++                me.chGridlines.on('change', _.bind(function (checkbox, state) {
++                    me.fireEvent('gridlines:change', [me.chGridlines, state === 'checked']);
++                }, me));
+                 me.chMarginMarks.on('change', _.bind(function (checkbox, state) {
+                     me.fireEvent('marginmarks:change', [me.chMarginMarks, state === 'checked']);
+                 }, me));
+@@ -322,6 +327,17 @@ define([
+                 });
+                 this.lockedControls.push(this.chRulers);
+ 
++                // Daylight: grid lines over the page (under the Rulers check box)
++                this.chGridlines = new Common.UI.CheckBox({
++                    lock: [_set.lostConnect, _set.disableOnStart],
++                    labelText: this.textGridlines,
++                    value: Common.localStorage.getBool('de-show-gridlines', false),
++                    dataHint: '1',
++                    dataHintDirection: 'left',
++                    dataHintOffset: 'small'
++                });
++                this.lockedControls.push(this.chGridlines);
++
+                 // Daylight: show the text-area (margin) corner marks on the page
+                 this.chMarginMarks = new Common.UI.CheckBox({
+                     lock: [_set.lostConnect, _set.disableOnStart],
+@@ -477,6 +493,7 @@ define([
+                 this.chStatusbar.render($host.find('#slot-chk-statusbar'));
+                 this.chToolbar.render($host.find('#slot-chk-toolbar'));
+                 this.chRulers.render($host.find('#slot-chk-rulers'));
++                this.chGridlines.render($host.find('#slot-chk-gridlines'));
+                 this.chMarginMarks.render($host.find('#slot-chk-marginmarks'));
+                 this.btnMacros && this.btnMacros.render($host.find('#slot-btn-macros'));
+                 this.chLeftMenu.render($host.find('#slot-chk-leftmenu'));
+@@ -579,6 +596,7 @@ define([
+             textAlwaysShowToolbar: 'Always show toolbar',
+             textRulers: 'Rulers',
+             textMarginMarks: 'Text boundaries',
++            textGridlines: 'Gridlines',
+             textDarkDocument: 'Dark document',
+             tipHeadings: 'Headings',
+             tipFitToPage: 'Fit to page',

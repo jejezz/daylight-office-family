@@ -116,6 +116,11 @@ def main():
             if nv != v:
                 d[k] = nv
                 n += 1
+        # keys the editors do not have in upstream's locale yet (our own UI additions), per editor folder
+        for k, v in terms.get('add', {}).get(os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(f)))), {}).items():
+            if d.get(k) != v:
+                d[k] = v
+                n += 1
         out = json.dumps(d, ensure_ascii=False, separators=(',', ':'))
         open(f, 'w', encoding='utf-8', newline='').write(out)
         total += n

@@ -3,7 +3,8 @@
 # The tree is built in build\app.new and swapped in only when every step succeeded, so a failed build never
 # leaves a half-built build\app behind (a half-built tree makes the app fail with "kernel.dll" errors).
 param(
-  [string]$Version = '10.0.0.169'
+  [string]$Version = '10.0.0.169',
+  [switch]$ForceEngine   # build and swap in the engine (sdkjs) even when patches\sdkjs has no patch (baseline check)
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
@@ -40,7 +41,9 @@ robocopy $up $stage /E /NFL /NDL /NJH /NJS /NP | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "robocopy failed ($LASTEXITCODE)" }
 
 # 2. patches (git apply works on plain directories; --directory is relative to the repo root)
-$patches = @(Get-ChildItem (Join-Path $root 'patches') -Recurse -Filter *.patch -ErrorAction SilentlyContinue | Sort-Object FullName)
+# patches\sdkjs\ holds engine patches (applied to the sdkjs source by tools\engine\build-sdk.ps1), not to the install tree
+$patches = @(Get-ChildItem (Join-Path $root 'patches') -Recurse -Filter *.patch -ErrorAction SilentlyContinue |
+  Where-Object { $_.FullName -notlike '*\patches\sdkjs\*' } | Sort-Object FullName)
 foreach ($p in $patches) {
   $rel = $p.FullName.Substring($root.Length + 1)
   & $git apply -p1 --directory=build/app.new --whitespace=nowarn $p.FullName
@@ -90,6 +93,9 @@ foreach ($n in $rootDlls) {
 }
 Write-Host "standalone editors.exe: $($rootDlls.Count) converter DLLs copied to the app root"
 
+# 4f. editing engine: sdkjs built from source with patches\sdkjs (skipped when there is no engine patch)
+$engineInfo = & (Join-Path $PSScriptRoot 'engine\build-sdk.ps1') -Stage $stage -Root $root -ForceEngine:$ForceEngine
+
 # 5. build record
 $lines = @("upstream_version=$Version", ("built_at=" + (Get-Date -Format 's')))
 if (Test-Path (Join-Path $root '.git')) {
@@ -99,6 +105,7 @@ if (Test-Path (Join-Path $root '.git')) {
 foreach ($p in $patches) {
   $lines += ("patch={0} sha256={1}" -f $p.Name, (Get-FileHash $p.FullName -Algorithm SHA256).Hash.ToLower())
 }
+$lines += @($engineInfo | Where-Object { $_ -is [string] -and $_ -like 'engine*' })
 [IO.File]::WriteAllLines((Join-Path $stage 'BUILD-INFO.txt'), $lines)
 
 # 6. swap: rename the old tree away first (a rename fails cleanly if something holds it, leaving build\app intact)
