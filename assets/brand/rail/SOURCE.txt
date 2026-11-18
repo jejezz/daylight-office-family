@@ -1,0 +1,5 @@
+Left-rail icons of the start screen (Home, Open, Settings, About): 100x100 PNG downloaded from icons8.com by the owner
+on 2026-11-18 (icons8-home-100, icons8-opened-folder-100, icons8-settings-100, icons8-information-100).
+Shown in the About window as "Icons designed by icons8.com".
+These files are NOT under this project's own CC BY-SA 4.0 icon license: they are Icons8 artwork used under Icons8's
+terms (free use with attribution). Check https://icons8.com/license before changing how they are used or distributed.

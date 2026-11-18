@@ -58,5 +58,15 @@
   "layout": {
     "_comment": "Layout numbers the editors keep in JavaScript (Common.Utils.InternalSettings), patched into common/main/lib/util/utils.js at build time. The title row (quick buttons + document name) is 28 upstream; with 32px buttons it needs margin: 32 + 4 + 4 = 40.",
     "document-title-height": 40
+  },
+  "shell": {
+    "_comment": "Start/settings screen (index.html), px: left rail button, rail icon, rail label font; gap between settings rows = clamp(min, vh, max) so all rows fit at any window height.",
+    "rail-width": 88,
+    "rail-height": 92,
+    "rail-icon": 38,
+    "rail-label": 15,
+    "form-gap-min": 8,
+    "form-gap-vh": 2.4,
+    "form-gap-max": 32
   }
 }

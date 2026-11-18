@@ -277,6 +277,20 @@ def shell_css(pal):
     # --dl-font is set on <html> by the user's "Interface font" setting (see tools/brand/apply.py); empty -> the default stack
     uf = f"var(--dl-font,{fam})"
     rules.append(f":root,:root *{{--font-family-base:{uf} !important;--font-family-base-custom:{uf} !important}}")
+    # left rail (Home / Open / Settings / About): bigger icons and labels (vector icons, so they stay sharp)
+    sh = pal.get('shell', {})
+    if sh:
+        rail = ".tool-menu>.menu-item:not(.separator):not(.devider) :is(a,.menu-btn)"
+        rules.append(f"{rail}{{width:{sh['rail-width']}px;height:{sh['rail-height']}px;gap:4px}}")
+        rules.append(f"{rail} .icon{{width:{sh['rail-icon']}px;height:{sh['rail-icon']}px}}")
+        rules.append(f"{rail} .icon-inner-box{{height:{sh['rail-icon'] + 6}px;flex-grow:0}}")
+        rules.append(f"{rail} span{{font-size:{sh['rail-label']}px;font-weight:600}}")
+        # the rail column must be wider than its buttons, or the rail scrolls sideways
+        rules.append(f".shell{{grid-template-columns:{sh['rail-width'] + 14}px minmax(0,1fr)}}")
+        rules.append(".col-sidebar{overflow-x:hidden}")
+        # settings pages: the gap between rows follows the window height so every row fits on one screen
+        rules.append(f".mIUnDq_form,.uNipaa_form{{gap:clamp({sh['form-gap-min']}px,{sh['form-gap-vh']}vh,{sh['form-gap-max']}px)}}")
+        rules.append(".mIUnDq_form{padding-top:26px}")   # keeps the 'reset to defaults' link (absolute, top right) clear of the first row
     rules.insert(0, font_face_css(FONT_UI_REL.replace(os.sep, '/') + '/'))
     return '\n'.join(rules)
 
@@ -386,6 +400,27 @@ def patch_layout_js(app, layout):
     open(path, 'w', encoding='utf-8', newline='').write(t)
 
 
+def patch_rail_icons(app):
+    """Swap the four left-rail icons of the start screen (symbols home, folder, settings, about in index.html) for the
+    Icons8 artwork in assets/brand/rail/*.png (100x100, embedded as data URIs; drawn at 38px so they stay sharp up to
+    ~260% scaling). Each symbol must exist exactly once."""
+    import base64
+    d = os.path.join(HERE, '..', '..', 'assets', 'brand', 'rail')
+    path = os.path.join(app, 'index.html')
+    t = open(path, encoding='utf-8', errors='ignore', newline='').read()
+    n = 0
+    for sid in ('home', 'folder', 'settings', 'about'):
+        b64 = base64.b64encode(open(os.path.join(d, sid + '.png'), 'rb').read()).decode('ascii')
+        new = f'<symbol id="{sid}" viewBox="0 0 100 100"><image width="100" height="100" href="data:image/png;base64,{b64}"/></symbol>'
+        pat = re.compile(r'<symbol id="%s"[^>]*>.*?</symbol>' % sid, re.S)
+        if len(pat.findall(t)) != 1:
+            raise SystemExit(f"index.html: expected one <symbol id=\"{sid}\">, found {len(pat.findall(t))} (upstream changed?)")
+        t = pat.sub(lambda m: new, t, count=1)
+        n += 1
+    open(path, 'w', encoding='utf-8', newline='').write(t)
+    return n
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--app', required=True)
@@ -410,6 +445,7 @@ def main():
     print(f"theme: Saturn palette over {pal['dark']['theme']} / {pal['light']['theme']} "
           f"(+{nd} / +{nl} background tokens recolored from the old grays), injected into {n} editor page(s), {len(css)} bytes of CSS")
     scss = shell_css(pal)
+    print(f"theme: {patch_rail_icons(a.app)} Icons8 rail icons placed in index.html")
     print(f"theme: start screen (index.html) {'injected' if inject_shell(a.app, scss) else 'already present'}, {len(scss)} bytes of CSS")
     print(f"theme: native window themes rewritten in editors.exe: {', '.join(patch_native_themes(a.app, pal))}")
 

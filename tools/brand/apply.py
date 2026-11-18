@@ -193,7 +193,8 @@ def patch_index_html(path, cfg, version, log, dry):
     if h.count(anchor) != 1:
         raise SystemExit("index.html: About template anchor not found exactly once")
     notice = cfg['notice'].format(version=version, modified=cfg['modified'])
-    h = h.replace(anchor, anchor.replace('</div></section>', f'<p class=about-version>{notice}</p></div></section>'))
+    credits = f"<p class=about-version>{cfg['credits']}</p>" if cfg.get('credits') else ''
+    h = h.replace(anchor, anchor.replace('</div></section>', f'<p class=about-version>{notice}</p>{credits}</div></section>'))
     # extra CSS (e.g. hide the About update row: the update check is disabled)
     if cfg.get('css'):
         if h.count('</head>') != 1:
