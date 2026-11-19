@@ -220,6 +220,12 @@ def make_css(pal, app_css_text):
     parts.append(f".options__icon-huge{{zoom:{zh:.5f}}}")
     th = int(pal['layout']['document-title-height'])
     parts.append(f".top-title .cousers-menu{{top:calc({th}px + 28px - 8px) !important}}")
+    # Header-colored strip under the toolbar panel: --toolbar-height-controls (also read by the editors' JS to size the
+    # toolbar row) includes the gap; the panel itself is that much shorter so it sits inside the title area, not on top of it.
+    gap = int(pal['layout'].get('toolbar-bottom-gap', 0))
+    parts.append(f".toolbar .box-controls{{height:calc(var(--toolbar-height-controls) - {gap}px) !important;"
+                 f"padding:calc((var(--toolbar-height-controls) - {gap}px - var(--toolbar-group-height))/2) 0 !important}}")
+    parts.append(".toolbar .box-controls:before{height:100% !important}")
     hid = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hidden.json'), encoding='utf-8'))
     for g in hid['groups']:
         parts.append(f".separator:has(+ .group {g}),.group:has({g}){{display:none!important}}")

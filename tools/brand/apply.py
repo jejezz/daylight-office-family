@@ -81,6 +81,21 @@ def binary_rules(cfg):
     ]
 
 
+def patch_min_width(buf, width, log, dry):
+    """Window minimum width: upstream WINDOW_MIN_WIDTH (520) is a double constant in editors.exe, used as 520.0 * dpiRatio
+    (three mulsd sites, always right after the 480.0 height constant). The default 520 collapses the ribbon into 'More'
+    almost completely with our larger controls, so it is raised. Rule: exactly one 520.0 and one 480.0, adjacent."""
+    import struct
+    old, hgt = struct.pack('<d', 520.0), struct.pack('<d', 480.0)
+    n = bytes(buf).count(old)
+    at = bytes(buf).find(hgt + old)
+    if n != 1 or bytes(buf).count(hgt) != 1 or at < 0:
+        raise SystemExit(f"min width: expected one 520.0 next to one 480.0 in editors.exe, found {n} (upstream changed?)")
+    if not dry:
+        buf[at + 8:at + 16] = struct.pack('<d', float(width))
+    log.append(f"  window minimum width 520 -> {width}")
+
+
 def patch_pngs(buf, offsets, assets, log, dry):
     for e in offsets['editors.exe']['logos']:
         o, w, h, ln = e['off'], e['w'], e['h'], e['len']
@@ -301,6 +316,7 @@ def main():
         bufs[f] = bytearray(open(os.path.join(a.app, f), 'rb').read())
     for (f, kind, old, new, lo, hi) in binary_rules(cfg):
         patch_whole(bufs[f], kind, old, new, lo, hi, log, a.dry_run, label=f)
+    patch_min_width(bufs['editors.exe'], cfg.get('minWindowWidth', 520), log, a.dry_run)
     patch_pngs(bufs['editors.exe'], offsets, a.assets, log, a.dry_run)
     qt_path = os.path.join(a.assets, 'app_qt.ico')   # slim variant when the full icon does not fit the Qt resource slot
     patch_qt_ico(bufs['editors.exe'], open(qt_path, 'rb').read() if os.path.exists(qt_path) else ico, log, a.dry_run)

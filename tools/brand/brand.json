@@ -24,6 +24,7 @@
     "clouds",
     "templates"
   ],
+  "minWindowWidth": 550,
   "updateUrl": "http://127.0.0.1:9/appcast.json",
   "removePaths": [
     "updatesvc.exe",
