@@ -127,6 +127,47 @@ def patch_qt_ico(buf, ico, log, dry):
     log.append(f"  Qt :/app.ico {len(z)}/{used} bytes compressed")
 
 
+# start screen words that the bundle already has in every language: our key -> bundle dictionary key
+START_BUNDLE_KEYS = {
+    'word': 'newDoc', 'cell': 'newXlsx', 'slide': 'newPptx', 'form': 'newForm', 'create': 'actCreateNew',
+    'open': 'actOpenLocal', 'settings': 'actSettings', 'about': 'actAbout', 'name': 'colFileName',
+    'place': 'colLocation', 'last': 'colLastOpened', 'pin': 'menuFilePin', 'unpin': 'menuFileUnpin',
+    'folder': 'menuFileExplore', 'remove': 'menuRemoveModel',
+}
+
+
+def bundle_texts(h):
+    """{locale: {ourKey: text}} read from the per-language dictionaries inside index.html
+    (the bundle maps '../../locale/<locale>.js' to a constant holding {welWelcome:"...",...})."""
+    import re
+    out = {}
+    for loc, ns in re.findall(r'"\.\./\.\./locale/([\w-]+)\.js":([\w$]+)', h):
+        # the glob maps to a frozen module namespace  NS=Object.freeze(Object.defineProperty({__proto__:null,default:DICT},...
+        nm = re.search(r'(?<![\w$])' + re.escape(ns) + r'=Object\.freeze\(Object\.defineProperty\(\{__proto__:null,default:([\w$]+)\}', h)
+        if not nm:
+            continue
+        const = nm.group(1)
+        m = re.search(r'(?<![\w$])' + re.escape(const) + r'=\{welWelcome:', h)
+        e = h.find('default:' + const + '}', m.start()) if m else -1
+        if not m or e < 0:
+            continue
+        body = h[m.start():e]
+        texts = {}
+        for ours, theirs in START_BUNDLE_KEYS.items():
+            km = re.search(r'(?<![\w$])' + theirs + r':"((?:[^"\\]|\\.)*)"', body)
+            if not km:
+                continue
+            # JS string literal -> JSON string: \xNN is not JSON, \' is not JSON
+            raw = re.sub(r'\\x([0-9a-fA-F]{2})', lambda x: '\\u00' + x.group(1), km.group(1)).replace("\\'", "'")
+            try:
+                texts[ours] = json.loads('"' + raw + '"')
+            except ValueError:
+                pass
+        if texts:
+            out[loc] = texts
+    return out
+
+
 def patch_index_html(path, cfg, version, log, dry):
     h = open(path, 'rb').read().decode('utf-8')
     import re
@@ -201,6 +242,36 @@ def patch_index_html(path, cfg, version, log, dry):
             raise SystemExit("index.html: expected exactly one </head>")
         h = h.replace('</head>', '<style>' + cfg['css'] + '</style></head>')
         log.append(f"  index.html: css injected: {cfg['css']}")
+    # Daylight start screen (single page: toolbar + recent files): assets/start/start.css + start.js
+    start_dir = os.path.join(ROOT, 'assets', 'start')
+    if os.path.isdir(start_dir):
+        s_css = open(os.path.join(start_dir, 'start.css'), encoding='utf-8').read()
+        s_js = open(os.path.join(start_dir, 'start.js'), encoding='utf-8').read()
+        if h.count('</head>') != 1 or h.count('</body>') != 1:
+            raise SystemExit("index.html: start screen: expected exactly one </head> and one </body>")
+        if '</script' in s_js or '</style' in s_css:
+            raise SystemExit("start screen assets must not contain a closing script/style tag")
+        import base64
+        icons = {}
+        icon_dir = os.path.join(start_dir, 'icons')
+        for n in sorted(os.listdir(icon_dir)):
+            if n.endswith('.png'):
+                icons[n[:-4]] = 'data:image/png;base64,' + base64.b64encode(open(os.path.join(icon_dir, n), 'rb').read()).decode('ascii')
+        ph = '/*DL_ICONS*/{}/*END*/'
+        if s_js.count(ph) != 1:
+            raise SystemExit("start.js: icon placeholder not found exactly once")
+        s_js = s_js.replace(ph, json.dumps(icons))
+        bt = bundle_texts(h)
+        if len(bt) < 30 or any(len(v) < len(START_BUNDLE_KEYS) - 3 for v in bt.values()):
+            raise SystemExit(f"start screen: bundle dictionaries not read as expected ({len(bt)} languages)")
+        ph2 = '/*DL_BUNDLE*/{}/*END*/'
+        if s_js.count(ph2) != 1:
+            raise SystemExit("start.js: bundle text placeholder not found exactly once")
+        s_js = s_js.replace(ph2, json.dumps(bt, ensure_ascii=False))
+        log.append(f"  index.html: start screen texts taken from the bundle for {len(bt)} languages")
+        h = h.replace('</head>', '<style id="dl-start-css">' + s_css + '</style></head>')
+        h = h.replace('</body>', '<script id="dl-start-js">' + s_js + '</script></body>')
+        log.append("  index.html: start screen injected (assets/start)")
     if not dry:
         open(path, 'wb').write(h.encode('utf-8'))
     log.append("  index.html: " + '; '.join(f"{o!r} x{c}" for o, c in counts) + f" -> {cfg['product']!r}")

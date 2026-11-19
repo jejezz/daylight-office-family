@@ -1,0 +1,74 @@
+/* Daylight start screen: single page = toolbar row + recent-files table. Injected into index.html by tools/brand/apply.py.
+   The bundle's left rail and its home content stay in the DOM (hidden): settings and the About dialog are reused from it. */
+.col-sidebar { display: none !important; }
+.home-panel > .home-page { display: none !important; }
+.shell { grid-template-columns: minmax(0, 1fr) !important; }   /* the rail column is gone: the content takes the whole width */
+.col-center { min-width: 0; }
+
+/* Settings (and every other route except home) is a modal dialog above the home page: the home page stays visible
+   and is made inert by start.js while the dialog is open. */
+#dl-scrim { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, 0.5); }
+body.dl-modal #dl-scrim { display: block; }
+body.dl-modal .home-panel { display: block !important; }
+body.dl-modal .col-center > :not(.home-panel):not(#dl-scrim):not(#dl-close) {
+  position: fixed; z-index: 60; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: min(980px, 94vw); height: min(720px, 94vh); border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--border-regular-control); box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+/* the bundle draws dropdown lists and dialogs in a layer directly under <body> (no z-index): lift it above the settings dialog */
+body > div:not(#wrap):not(#dl-menu) { position: relative; z-index: 200; }
+#dl-close { display: none; position: fixed; z-index: 70; width: 32px; height: 32px; border-radius: 6px; border: 0; background: none; color: var(--text-secondary); font-size: 20px; line-height: 32px; cursor: pointer; padding: 0;
+  top: calc(50% - min(720px, 94vh) / 2 + 12px); left: calc(50% + min(980px, 94vw) / 2 - 42px); }
+#dl-close:hover { background: var(--highlight-button-hover); color: var(--text-normal); }
+#dl-close:focus-visible { outline: 2px solid var(--border-control-focus); }
+body.dl-modal #dl-close { display: block; }
+
+#dl-home { display: flex; flex-direction: column; height: 100%; min-height: 0; font-size: 15px; line-height: 20px; color: var(--text-normal); }
+#dl-home button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+#dl-home .dl-bar { display: flex; align-items: flex-end; gap: 8px; padding: 14px 20px 12px; border-bottom: 1px solid var(--border-divider); flex-shrink: 0; }
+#dl-home .dl-group { display: flex; flex-direction: column; }
+#dl-home .dl-group-title { color: var(--text-secondary); font-size: 13px; margin: 0 0 6px 8px; }
+#dl-home .dl-group-row { display: flex; gap: 4px; }
+#dl-home .dl-btn { display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px; min-width: 104px; padding: 12px 14px 10px; border-radius: 10px; white-space: nowrap; font-size: 14px; }
+#dl-home .dl-btn:hover { background: var(--highlight-button-hover); }
+#dl-home .dl-btn:active { background: var(--highlight-button-pressed); }
+#dl-home .dl-btn:focus-visible, #dl-home .dl-more:focus-visible { outline: 2px solid var(--border-control-focus); outline-offset: -2px; }
+#dl-home .dl-btn svg, #dl-home .dl-btn img { width: 64px; height: 64px; flex-shrink: 0; object-fit: contain; }
+#dl-home .dl-name img { width: 24px; height: 24px; flex-shrink: 0; object-fit: contain; }
+#dl-home .dl-sep { width: 1px; height: 96px; align-self: flex-end; background: var(--border-divider); margin: 0 10px 4px; flex-shrink: 0; }
+#dl-home .dl-grow { flex: 1; }
+
+#dl-home .dl-head, #dl-home .dl-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) 130px 120px; align-items: center; column-gap: 16px; padding: 0 16px; }
+#dl-home .dl-head { height: 48px; color: var(--text-secondary); font-size: 13px; border-bottom: 1px solid var(--border-divider); flex-shrink: 0; }
+#dl-home .dl-head .dl-date { text-align: right; }
+#dl-home .dl-clear, #dl-home .dl-confirm button { height: 32px; padding: 0 14px; font-size: 13px; border-radius: 6px; white-space: nowrap; color: var(--text-normal); background: var(--background-normal-element); border: 1px solid var(--border-regular-control); }
+#dl-home .dl-clear:hover, #dl-home .dl-confirm button:hover { background: var(--highlight-button-pressed); }
+#dl-home .dl-clear:active, #dl-home .dl-confirm button:active { background: var(--highlight-button-pressed); border-color: var(--border-control-focus); }
+#dl-home .dl-clear:focus-visible, #dl-home .dl-confirm button:focus-visible { outline: 2px solid var(--border-control-focus); outline-offset: 1px; }
+#dl-home .dl-clear { justify-self: end; grid-column: 4; }
+#dl-home .dl-confirm { grid-column: 2 / 5; justify-self: end; display: flex; gap: 8px; align-items: center; font-size: 13px; white-space: nowrap; }
+#dl-home .dl-confirm .dl-yes { color: var(--text-negative); border-color: var(--text-negative); }
+
+#dl-home .dl-list { flex: 1; min-height: 0; overflow-y: auto; }
+#dl-home .dl-row { height: 46px; border-bottom: 1px solid var(--border-divider); cursor: default; }
+#dl-home .dl-row:hover, #dl-home .dl-row.dl-menu-open { background: var(--highlight-button-hover); }
+#dl-home .dl-row:focus-visible { outline: 2px solid var(--border-control-focus); outline-offset: -2px; }
+#dl-home .dl-name { display: flex; align-items: center; gap: 12px; min-width: 0; }
+#dl-home .dl-name svg { width: 24px; height: 24px; flex-shrink: 0; }
+#dl-home .dl-name .dl-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#dl-home .dl-name .dl-x { color: var(--text-secondary); }
+#dl-home .dl-badge { flex-shrink: 0; font-size: 11px; line-height: 16px; padding: 0 6px; border-radius: 8px; background: var(--background-normal-element); color: var(--text-secondary); }
+#dl-home .dl-pin { flex-shrink: 0; width: 12px; height: 12px; fill: currentColor; color: var(--text-secondary); }
+#dl-home .dl-path { color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#dl-home .dl-date { color: var(--text-secondary); text-align: right; white-space: nowrap; }
+#dl-home .dl-more { justify-self: end; width: 32px; height: 32px; border-radius: 6px; font-size: 16px; display: flex; align-items: center; justify-content: center; visibility: hidden; letter-spacing: 1px; color: var(--text-secondary); }
+#dl-home .dl-row:hover .dl-more, #dl-home .dl-row:focus-within .dl-more, #dl-home .dl-row.dl-menu-open .dl-more { visibility: visible; }
+#dl-home .dl-more:hover { background: var(--highlight-button-pressed); color: var(--text-normal); }
+#dl-home .dl-row.dl-gone .dl-name, #dl-home .dl-row.dl-gone .dl-path, #dl-home .dl-row.dl-gone .dl-date { opacity: 0.5; }
+
+#dl-home .dl-empty { padding: 64px 16px; text-align: center; color: var(--text-secondary); }
+#dl-home .dl-foot { flex-shrink: 0; padding: 12px 16px; text-align: center; font-size: 13px; color: var(--text-tertiary); }
+
+#dl-menu { position: fixed; z-index: 1000; min-width: 180px; padding: 6px; border-radius: 10px; background: var(--background-normal-element); border: 1px solid var(--border-regular-control); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35); font-size: 14px; color: var(--text-normal); }
+#dl-menu button { display: block; width: 100%; text-align: left; height: 36px; padding: 0 12px; border: 0; border-radius: 6px; background: none; font: inherit; color: inherit; cursor: pointer; white-space: nowrap; }
+#dl-menu button:hover, #dl-menu button:focus-visible { background: var(--highlight-button-hover); outline: none; }

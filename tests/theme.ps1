@@ -89,13 +89,13 @@ if ($viewOk) {
   $bm.Dispose()
 }
 
-# --- start screen (first tab) in the current theme: the left rail uses the palette canvas color
+# --- start screen (first tab) in the current theme: the margin around the home panel uses the palette canvas color
 $cur = if ($switched) { $exp2 } else { $expect }
 $r = Get-WindowRect $w.Process
 [DaylightUi]::Click($r.L + 65, $r.T + 17); Start-Sleep -Seconds 3
 $bm = Shot-Pixels 'start'
-$c = $bm.GetPixel(47, 400)
-Check 'start screen left rail uses the palette canvas color' (Near $c $cur.canvas) ((Hex $c) + " expected " + $cur.canvas)
+$c = $bm.GetPixel(5, 400)   # NOTE: the rail is gone (single-page start screen); this samples the margin left of the panel
+Check 'start screen margin uses the palette canvas color' (Near $c $cur.canvas) ((Hex $c) + " expected " + $cur.canvas)
 $bm.Dispose()
 # give the user their setting back: the test switched the theme, so choose 'Same as system' again (View > Interface Theme > first entry)
 if ($switched) {

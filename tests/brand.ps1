@@ -65,7 +65,7 @@ Check 'file-type icon xlsx (index 10) is green' (Near $c10 46 158 91 20) $(if ($
 $legacy = Join-Path $env:LOCALAPPDATA 'ONLYOFFICE\DesktopEditors'
 $legacyBefore = if (Test-Path $legacy) { (Get-Item $legacy).LastWriteTime } else { $null }
 Stop-App $app
-Start-App $app @('--single-window-app', ('"' + $doc + '"'))
+Start-App $app @('--single-window-app', '--remote-debugging-port=9333', ('"' + $doc + '"'))
 $w = Wait-AppWindow $app '*hello*' 60
 Check 'app starts' ($null -ne $w)
 if ($w) {
@@ -75,11 +75,12 @@ if ($w) {
   $ic = Get-WindowIconCenter $w.Process
   Check 'window/taskbar icon is the new icon' (Near $ic 255 230 100) $(if ($ic) { "center=({0},{1},{2})" -f $ic.R, $ic.G, $ic.B } else { 'no icon' })
   Save-WindowShot $w.Process (Join-Path $shots "brand-$stamp-editor.png")
-  # start screen: first tab, then About (bottom of the left rail)
+  # start screen: first tab, then About (toolbar button of the start screen, pressed through the DevTools port)
   $r = Get-WindowRect $w.Process
   [DaylightUi]::Click($r.L + 65, $r.T + 17); Start-Sleep -Seconds 2
   Save-WindowShot $w.Process (Join-Path $shots "brand-$stamp-start.png")
-  [DaylightUi]::Click($r.L + 47, $r.B - 48); Start-Sleep -Seconds 2
+  & python -I (Join-Path $PSScriptRoot 'lib\cdp.py') "[...document.querySelectorAll('#dl-home .dl-btn')].pop().click()" 'onlyoffice://plugin' | Out-Null
+  Start-Sleep -Seconds 2
   Save-WindowShot $w.Process (Join-Path $shots "brand-$stamp-about.png")
 }
 $clean = Close-App $app

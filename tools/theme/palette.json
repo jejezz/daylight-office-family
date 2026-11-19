@@ -52,6 +52,7 @@
     "_comment": "UI sizes (px) for both themes, about 15% above the first Saturn pass (decided 2026-11-18 from previews: text 12, button 28, controls 90 felt 20-30% smaller than MS Office). Upstream modern theme: text 12, button 24, gap 12, controls 84.",
     "font-size-base": "14px",
     "x-small-btn-size": "32px",
+    "header-component-margin": "0 4px",
     "toolbar-small-btn-margin-top": "10px",
     "toolbar-height-controls": "104px"
   },

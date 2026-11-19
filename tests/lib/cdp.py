@@ -52,5 +52,6 @@ def value(s, expr):
         raise RuntimeError(r['exceptionDetails'].get('exception', {}).get('description', 'js error'))
     return r['result'].get('value')
 if __name__ == '__main__':
-    s = connect()
+    # usage: cdp.py <js expression> [url-substring]   (default page: the editor; 'onlyoffice://plugin' = the start screen)
+    s = connect(match=sys.argv[2]) if len(sys.argv) > 2 else connect()
     print(json.dumps(value(s, sys.argv[1]), ensure_ascii=False)[:3000])

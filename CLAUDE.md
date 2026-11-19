@@ -26,6 +26,7 @@ tools\prepare-upstream.ps1        # (bootstrap 이 부름) 공식 설치본의 �
 tools\build.ps1                   # external 의 업스트림 + patches + overlay + 브랜드 단계 → build\app (약 30 초)
 tests\smoke.ps1                   # build\app 을 실행해 문서를 열고 창 제목·프로세스·스크린샷 확인
 tests\brand.ps1                   # 아이콘·설정/데이터 위치 분리·정적 문자열 확인, 시작/정보 화면 스크린샷
+tests\start-screen.ps1            # 새 시작 화면(도구 줄+최근 목록, 설정 모달, 1개 삭제/전체 비우기 확인)을 DevTools 포트로 확인(최근 목록을 비움, 시험 중 손대지 말 것)
 tests\icons.ps1                   # 교체된 스프라이트 칸 328개 정적 검사 + 홈 탭 아이콘을 기대 글리프와 화면 비교
 tests\theme.ps1                   # 밝게/어둡게 팔레트 색을 실제 화면 픽셀로 확인(사용자 상태를 초기화함, 영어 UI·기본 창 크기 전제)
 tools\package.ps1                 # build\app → dist\Daylight-Setup-<ver>.exe(Inno Setup, external\innosetup 필요) + 휴대용 zip
