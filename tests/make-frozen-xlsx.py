@@ -1,7 +1,7 @@
-"""Make a minimal .xlsm (macro-enabled content type, no VBA part) for tests/xlsm-save.ps1, and inspect saved files.
+"""Make a minimal .xlsx for tests/frozen-pane.ps1, and inspect saved files.
 
-  python tests/make-xlsm.py make  <out.xlsm>
-  python tests/make-xlsm.py check <file.xlsm> <text>   -> exit 0 if macro-enabled and the text is in a cell
+  python tests/make-frozen-xlsx.py make  <out.xlsx>
+  python tests/make-frozen-xlsx.py check <file.xlsx> <text>   -> exit 0 if the frozen split survived and the text is in a cell
 """
 import re
 import sys
@@ -11,7 +11,7 @@ CT = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
       '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
       '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
       '<Default Extension="xml" ContentType="application/xml"/>'
-      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.ms-excel.sheet.macroEnabled.main+xml"/>'
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
       '<Override PartName="/xl/worksheets/sheet1.xml" '
       'ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
       '<Override PartName="/xl/worksheets/sheet2.xml" '
@@ -71,13 +71,12 @@ def frozen_split(z):
 
 def check(path, text):
     z = zipfile.ZipFile(path)
-    macro = 'sheet.macroEnabled.main+xml' in z.read('[Content_Types].xml').decode('utf-8')
     cells = ''.join(z.read(n).decode('utf-8') for n in z.namelist()
                     if n.startswith('xl/sharedStrings') or n.startswith('xl/worksheets/'))
     found = text in re.findall(r'<t[^>]*>([^<]*)</t>', cells)
     split = frozen_split(z)
-    print(f"macro-enabled={macro} text {text!r} found={found} frozen split={split} (expected {FROZEN_SPLIT})")
-    return 0 if macro and found and split == FROZEN_SPLIT else 1
+    print(f"text {text!r} found={found} frozen split={split} (expected {FROZEN_SPLIT})")
+    return 0 if found and split == FROZEN_SPLIT else 1
 
 
 if __name__ == '__main__':

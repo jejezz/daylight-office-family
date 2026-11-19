@@ -2,6 +2,12 @@
 
 > 다른 PC 에서 이어 할 때는 `docs/HANDOFF.md`(준비 순서, 시험 주의, 남은 확인).
 
+## 2026-11-19 — .xlsm 저장은 지원하지 않기로 확정
+- 결정: .xlsm 저장은 지원하지 않는다(열기·편집만. 저장은 업스트림처럼 "다른 이름으로 저장"에서 xlsx 로 변환). 옵션으로도 남기지 않는다.
+- 지운 것: `tools/formats/`(네이티브 표 바이너리 패치), `tools/build.ps1` 의 `-XlsmSave` 와 4g 단계. 시험은 `tests/xlsm-save.ps1` → `tests/frozen-pane.ps1`, `tests/make-xlsm.py` → `tests/make-frozen-xlsx.py` 로 바꾸고 xlsm 전용 검사(바이트 확인, XLSM 다른 이름으로 저장)를 뺐다. 이제 xlsx 로 틀 고정 저장(엔진 패치 0004)만 확인한다. 시험 문서 생성·검사 스크립트는 확인했고, 화면 시험과 빌드는 다시 돌리지 않았다.
+- 유지: 엔진 패치 0004(xlsx 에도 해당), `filetypes.json` 의 xlsm 아이콘(열기용 형식 표시).
+- 아래 2026-11-18/19 의 xlsm 저장 기록은 **되돌려진 옛 시도의 기록**이다.
+
 ## 2026-11-18 — 준비 스크립트 `tools/bootstrap.ps1`
 - clone 직후에는 `external/`(업스트림 설치 트리, sdkjs)이 없어 `tools\build.ps1` 이 반드시 실패했다. `tools\bootstrap.ps1` 이 이를 한 번에 준비한다(여러 번 돌려도 안전, 이미 된 단계는 건너뜀).
 - 하는 일: ① git·python(3.9+)·Pillow/numpy 확인(파이썬 패키지는 `tools/requirements.txt` 로 pip 설치), 디스크 여유 ② 업스트림 트리: 같은 버전이 Program Files 에 설치돼 있으면 그것을, 아니면 `-Installer` 로 준 파일이나 `upstream.txt` 주소에서 받은 설치 파일을 크기·SHA-256·서명 확인 후 `external\_upstream-install` 에 조용히 설치(`/VERYSILENT /CURRENTUSER`) → `prepare-upstream.ps1` → 제거 ③ `external/sdkjs` 를 태그 v10.0.0.169 로 얕게 복제 ④ `-WithInstaller` 면 Inno Setup 6.7.4(해시 확인). `-CheckOnly`(변경 없이 점검), `-Build`(끝나고 build.ps1), `-IgnoreInstalled`, `-FullVerify`.

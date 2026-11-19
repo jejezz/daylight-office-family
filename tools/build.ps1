@@ -4,7 +4,6 @@
 # leaves a half-built build\app behind (a half-built tree makes the app fail with "kernel.dll" errors).
 param(
   [string]$Version = '10.0.0.169',
-  [switch]$XlsmSave,     # also patch the native format tables so .xlsm is saved in place (off by default, see docs/PROGRESS.md)
   [switch]$ForceEngine   # build and swap in the engine (sdkjs) even when patches\sdkjs has no patch (baseline check)
 )
 $ErrorActionPreference = 'Stop'
@@ -96,14 +95,6 @@ Write-Host "standalone editors.exe: $($rootDlls.Count) converter DLLs copied to 
 
 # 4f. editing engine: sdkjs built from source with patches\sdkjs (skipped when there is no engine patch)
 $engineInfo = & (Join-Path $PSScriptRoot 'engine\build-sdk.ps1') -Stage $stage -Root $root -ForceEngine:$ForceEngine
-
-# 4g. file formats (opt-in with -XlsmSave): save .xlsm in place and offer it in Save As (native format tables, tools\formats\apply.py)
-if ($XlsmSave) {
-  & $py.Source (Join-Path $PSScriptRoot 'formats\apply.py') --app $stage
-  if ($LASTEXITCODE -ne 0) { throw "formats\apply.py failed ($LASTEXITCODE)" }
-} else {
-  Write-Host "formats: .xlsm in-place save is OFF (upstream behavior; use -XlsmSave to enable)"
-}
 
 # 5. build record
 $lines = @("upstream_version=$Version", ("built_at=" + (Get-Date -Format 's')))
