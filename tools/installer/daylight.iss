@@ -95,4 +95,6 @@ Root: HKA; Subkey: "Software\Classes\Daylight.Document.hwpx\shell\open\command";
 Root: HKA; Subkey: "Software\Classes\.hwpx\OpenWithProgids"; ValueType: string; ValueName: "Daylight.Document.hwpx"; ValueData: ""; Flags: uninsdeletevalue; Tasks: assoc
 
 [Run]
+; Font chooser first (checked by default). It waits until the window is closed, so the app that starts next already reads the choice.
+Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ""{app}\set-ui-font.ps1"""; WorkingDir: "{app}"; Description: "인터페이스 글꼴 설정 (기본은 시스템 글꼴)"; Flags: postinstall skipifsilent
 Filename: "{app}\{#AppExe}"; Parameters: "{#LangArg}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent

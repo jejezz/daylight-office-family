@@ -39,8 +39,8 @@
     "headerText": "#FFFFFF"
   },
   "common": {
-    "_comment": "Not color: UI font stack and corner radii (UX-DESIGN 4.3: buttons 8px, windows 12px). SeoulNamsan is used when installed; Hangul falls back to Malgun Gothic.",
-    "font-family-base-custom": "\"SeoulNamsan\",\"Segoe UI\",\"Malgun Gothic\",system-ui,sans-serif",
+    "_comment": "Not color: UI font stack and corner radii (UX-DESIGN 4.3: buttons 8px, windows 12px). Default = the OS system font (system-ui: Segoe UI on Windows, SF on macOS); Hangul falls back to Malgun Gothic / Apple SD Gothic Neo.",
+    "font-family-base-custom": "system-ui,\"Segoe UI\",\"Malgun Gothic\",\"Apple SD Gothic Neo\",sans-serif",
     "border-radius-button-base": "8px",
     "border-radius-toolbar": "10px",
     "border-radius-window": "12px",

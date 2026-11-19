@@ -9,12 +9,12 @@ $ErrorActionPreference = 'Stop'
 function U([string]$s) { [regex]::Unescape($s) }
 $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $css = Join-Path $dir 'daylight-user.css'
-$stack = '"SeoulNamsan", sans-serif'
+$stack = 'system-ui, "Segoe UI", "Malgun Gothic", sans-serif'
 
 function Write-FontFile([string]$name) {
   $head = '/* Daylight Office - personal appearance settings. Written by set-ui-font.ps1; you may also edit it by hand. */'
   if ($name) { $rule = ':root { --dl-font: "' + ($name -replace '"', '') + '", ' + $stack + '; }' }
-  else { $rule = '/* :root { --dl-font: "Malgun Gothic", "SeoulNamsan", sans-serif; } */' }
+  else { $rule = '/* :root { --dl-font: "Malgun Gothic", sans-serif; } */' }
   [IO.File]::WriteAllText($css, $head + "`r`n" + $rule + "`r`n", (New-Object Text.UTF8Encoding($false)))
 }
 function Read-FontName {
@@ -27,7 +27,7 @@ if ($Reset) { Write-FontFile ''; exit 0 }
 if ($Set) { Write-FontFile $Set; exit 0 }
 
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing
-$defaultLabel = U '\uAE30\uBCF8 (\uC11C\uC6B8\uB0A8\uC0B0\uCCB4)'
+$defaultLabel = U '\uAE30\uBCF8 (\uC2DC\uC2A4\uD15C \uAE00\uAF34)'
 $fonts = @((New-Object System.Drawing.Text.InstalledFontCollection).Families | ForEach-Object { $_.Name } | Sort-Object)
 $form = New-Object Windows.Forms.Form
 $form.Text = U 'Daylight Office - \uC778\uD130\uD398\uC774\uC2A4 \uAE00\uAF34'
