@@ -15,7 +15,13 @@ function Write-FontFile([string]$name) {
   $head = '/* Daylight Office - personal appearance settings. Written by set-ui-font.ps1; you may also edit it by hand. */'
   if ($name) { $rule = ':root { --dl-font: "' + ($name -replace '"', '') + '", ' + $stack + '; }' }
   else { $rule = '/* :root { --dl-font: "Malgun Gothic", sans-serif; } */' }
-  [IO.File]::WriteAllText($css, $head + "`r`n" + $rule + "`r`n", (New-Object Text.UTF8Encoding($false)))
+  try { [IO.File]::WriteAllText($css, $head + "`r`n" + $rule + "`r`n", (New-Object Text.UTF8Encoding($false))); return $true }
+  catch {
+    if ($Set -or $Reset) { throw }
+    Add-Type -AssemblyName System.Windows.Forms
+    [void][Windows.Forms.MessageBox]::Show((U '설정 파일에 쓸 권한이 없습니다. 설치 프로그램을 다시 실행하거나 관리자 권한으로 실행하세요.') + "`r`n$css")
+    return $false
+  }
 }
 function Read-FontName {
   if (-not (Test-Path $css)) { return '' }
@@ -29,6 +35,10 @@ if ($Set) { Write-FontFile $Set; exit 0 }
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 $defaultLabel = U '\uAE30\uBCF8 (\uC2DC\uC2A4\uD15C \uAE00\uAF34)'
 $fonts = @((New-Object System.Drawing.Text.InstalledFontCollection).Families | ForEach-Object { $_.Name } | Sort-Object)
+# SeoulNamsan ships inside the app (fonts folder), it is not installed in Windows: add it to the list and load it for the preview only
+$priv = New-Object System.Drawing.Text.PrivateFontCollection
+$sn = Join-Path $dir 'fonts\seoul_namsan_regular.ttf'
+if (Test-Path $sn) { $priv.AddFontFile($sn); if ($fonts -notcontains 'SeoulNamsan') { $fonts = @('SeoulNamsan') + $fonts } }
 $form = New-Object Windows.Forms.Form
 $form.Text = U 'Daylight Office - \uC778\uD130\uD398\uC774\uC2A4 \uAE00\uAF34'
 $form.ClientSize = New-Object Drawing.Size(460, 210)
@@ -62,10 +72,12 @@ $cl.Text = U '\uB2EB\uAE30'; $cl.Location = New-Object Drawing.Point(360, 170); 
 $combo.Add_SelectedIndexChanged({
   $n = [string]$combo.SelectedItem
   if ($combo.SelectedIndex -le 0) { $prev.Font = New-Object Drawing.Font('Malgun Gothic', 14) }
+  elseif ($n -eq 'SeoulNamsan' -and $priv.Families.Count -gt 0) { $prev.Font = New-Object Drawing.Font($priv.Families[0], 14) }
   else { try { $prev.Font = New-Object Drawing.Font($n, 14) } catch { } }
 })
 $ok.Add_Click({
-  if ($combo.SelectedIndex -le 0) { Write-FontFile '' } else { Write-FontFile ([string]$combo.SelectedItem) }
+  if ($combo.SelectedIndex -le 0) { $r = Write-FontFile '' } else { $r = Write-FontFile ([string]$combo.SelectedItem) }
+  if (-not $r) { return }
   $status.Text = U '\uC801\uC6A9\uD588\uC2B5\uB2C8\uB2E4. \uC571\uC744 \uB2E4\uC2DC \uC2DC\uC791\uD558\uBA74 \uBC14\uB01D\uB2C8\uB2E4.'
 })
 $cl.Add_Click({ $form.Close() })
